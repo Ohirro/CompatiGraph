@@ -1,0 +1,31 @@
+vim
+  Depends: libacl1 (>= 2.2.23)
+  Depends: libc6 (>= 2.34)
+  Depends: libgpm2 (>= 1.20.7)
+  Depends: libselinux1 (>= 3.1~)
+  Depends: libsodium23 (>= 1.0.14)
+  Depends: libtinfo6 (>= 6)
+  Depends: vim-common (= 2:9.0.1378-2)
+  Depends: vim-runtime (= 2:9.0.1378-2)
+libacl1
+  Depends: libc6 (>= 2.33)
+  Depends: vim-runtime (>> 2:9.0.1378-1)
+libc6
+  Depends: libgcc-s1
+libgcc-s1
+  Depends: gcc-12-base (= 12.2.0-14)
+  Depends: libc6 (>= 2.35)
+gcc-12-base
+libgpm2
+  Depends: libc6 (>= 2.33)
+libselinux1
+  Depends: libc6 (>= 2.34)
+  Depends: libpcre2-8-0 (>= 10.22)
+libpcre2-8-0
+  Depends: libc6 (>= 2.34)
+libsodium23
+  Depends: libc6 (>= 2.25)
+libtinfo6
+  Depends: libc6 (>= 2.34)
+vim-common
+vim-runtime

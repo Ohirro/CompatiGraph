@@ -1,0 +1,852 @@
+emacs
+  Depends: emacs-gtk (>= 1:27.1)
+  Depends: emacs-lucid (>= 1:27.1)
+  Depends: emacs-nox (>= 1:27.1)
+emacs-gtk
+  Depends: emacs-bin-common (= 1:28.2+1-15)
+  Depends: emacs-common (= 1:28.2+1-15)
+  Depends: libacl1 (>= 2.2.23)
+  Depends: libasound2 (>= 1.0.16)
+  Depends: libc6 (>= 2.35)
+  Depends: libcairo2 (>= 1.10.0)
+  Depends: libdbus-1-3 (>= 1.9.14)
+  Depends: libfontconfig1 (>= 2.12.6)
+  Depends: libfreetype6 (>= 2.2.1)
+  Depends: libgccjit0 (>= 11)
+  Depends: libgdk-pixbuf-2.0-0 (>= 2.22.0)
+  Depends: libgif7 (>= 5.1)
+  Depends: libglib2.0-0 (>= 2.37.3)
+  Depends: libgmp10 (>= 2:6.2.1+dfsg1)
+  Depends: libgnutls30 (>= 3.7.5)
+  Depends: libgpm2 (>= 1.20.7)
+  Depends: libgtk-3-0 (>= 3.21.4)
+  Depends: libharfbuzz0b (>= 0.9.42)
+  Depends: libice6 (>= 1:1.0.0)
+  Depends: libjansson4 (>= 2.14)
+  Depends: libjpeg62-turbo (>= 1.3.1)
+  Depends: liblcms2-2 (>= 2.2+git20110628)
+  Depends: libm17n-0 (>= 1.6.1)
+  Depends: libotf1 (>= 0.9.16)
+  Depends: libpango-1.0-0 (>= 1.18.0)
+  Depends: libpng16-16 (>= 1.6.2-1)
+  Depends: librsvg2-2 (>= 2.47.3)
+  Depends: libselinux1 (>= 3.1~)
+  Depends: libsm6
+  Depends: libsystemd0
+  Depends: libtiff6 (>= 4.0.3)
+  Depends: libtinfo6 (>= 6)
+  Depends: libx11-6
+  Depends: libxext6
+  Depends: libxfixes3 (>= 1:4.0.1)
+  Depends: libxml2 (>= 2.7.4)
+  Depends: libxrender1
+  Depends: zlib1g (>= 1:1.1.4)
+emacs-bin-common
+  Depends: emacs-common (= 1:28.2+1-15)
+  Depends: libc6 (>= 2.34)
+emacs-common
+  Depends: emacs-el
+  Depends: emacsen-common (>= 3.0.0)
+  Depends: init-system-helpers (>= 1.52)
+  Depends: install-info
+emacs-el
+  Depends: emacs-common (= 1:28.2+1-15)
+emacsen-common
+init-system-helpers
+  Depends: usr-is-merged
+  Depends: usrmerge
+usr-is-merged
+usrmerge
+  Depends: libfile-find-rule-perl
+  Depends: perl:any
+libfile-find-rule-perl
+  Depends: libnumber-compare-perl
+  Depends: libtext-glob-perl
+  Depends: perl:any
+libnumber-compare-perl
+libtext-glob-perl
+perl:any
+install-info
+  Depends: libc6 (>= 2.34)
+libc6
+  Depends: libgcc-s1
+libgcc-s1
+  Depends: gcc-12-base (= 12.2.0-14)
+  Depends: libc6 (>= 2.35)
+gcc-12-base
+libacl1
+  Depends: libc6 (>= 2.33)
+libasound2
+  Depends: libasound2-data (>= 1.2.8-1)
+  Depends: libc6 (>= 2.34)
+libasound2-data
+libcairo2
+  Depends: libc6 (>= 2.35)
+  Depends: libfontconfig1 (>= 2.12.6)
+  Depends: libfreetype6 (>= 2.9.1)
+  Depends: libpixman-1-0 (>= 0.30.0)
+  Depends: libpng16-16 (>= 1.6.2-1)
+  Depends: libx11-6
+  Depends: libxcb-render0
+  Depends: libxcb-shm0
+  Depends: libxcb1 (>= 1.6)
+  Depends: libxext6
+  Depends: libxrender1
+  Depends: zlib1g (>= 1:1.1.4)
+libfontconfig1
+  Depends: fontconfig-config (>= 2.14.1-4)
+  Depends: libc6 (>= 2.33)
+  Depends: libexpat1 (>= 2.0.1)
+  Depends: libfreetype6 (>= 2.9.1)
+fontconfig-config
+  Depends: debconf (>= 0.5)
+  Depends: debconf-2.0
+  Depends: fonts-croscore
+  Depends: fonts-dejavu-core
+  Depends: fonts-freefont-otf
+  Depends: fonts-freefont-ttf
+  Depends: fonts-liberation
+  Depends: fonts-liberation2
+  Depends: fonts-texgyre
+  Depends: fonts-urw-base35
+  Depends: ttf-bitstream-vera
+debconf
+debconf-2.0
+fonts-croscore
+fonts-dejavu-core
+fonts-freefont-otf
+fonts-freefont-ttf
+fonts-liberation
+fonts-liberation2
+fonts-texgyre
+fonts-urw-base35
+  Depends: xfonts-utils
+xfonts-utils
+  Depends: libc6 (>= 2.14)
+  Depends: libfontenc1
+  Depends: libfreetype6 (>= 2.2.1)
+  Depends: x11-common
+  Depends: xfonts-encodings
+  Depends: zlib1g (>= 1:1.1.4)
+libfontenc1
+  Depends: libc6 (>= 2.14)
+  Depends: zlib1g (>= 1:1.1.4)
+zlib1g
+  Depends: libc6 (>= 2.14)
+libfreetype6
+  Depends: libbrotli1 (>= 0.6.0)
+  Depends: libc6 (>= 2.33)
+  Depends: libpng16-16 (>= 1.6.2-1)
+  Depends: zlib1g (>= 1:1.1.4)
+libbrotli1
+  Depends: libc6 (>= 2.29)
+libpng16-16
+  Depends: libc6 (>= 2.29)
+  Depends: zlib1g (>= 1:1.2.11.dfsg)
+x11-common
+  Depends: lsb-base (>= 1.3-9ubuntu2)
+lsb-base
+  Depends: sysvinit-utils (>= 3.05-4~)
+sysvinit-utils
+  Depends: libc6 (>= 2.34)
+xfonts-encodings
+  Depends: x11-common
+ttf-bitstream-vera
+libexpat1
+  Depends: libc6 (>= 2.25)
+libpixman-1-0
+  Depends: libc6 (>= 2.29)
+libx11-6
+  Depends: libc6 (>= 2.34)
+  Depends: libx11-data
+  Depends: libxcb1 (>= 1.11.1)
+libx11-data
+libxcb1
+  Depends: libc6 (>= 2.14)
+  Depends: libxau6 (>= 1:1.0.9)
+  Depends: libxdmcp6
+libxau6
+  Depends: libc6 (>= 2.4)
+libxdmcp6
+  Depends: libbsd0 (>= 0.2.0)
+  Depends: libc6 (>= 2.4)
+libbsd0
+  Depends: libc6 (>= 2.34)
+  Depends: libmd0 (>= 1.0.3-2)
+libmd0
+  Depends: libc6 (>= 2.33)
+libxcb-render0
+  Depends: libc6 (>= 2.14)
+  Depends: libxcb1 (>= 1.8)
+libxcb-shm0
+  Depends: libc6 (>= 2.4)
+  Depends: libxcb1 (>= 1.12)
+libxext6
+  Depends: libc6 (>= 2.14)
+  Depends: libx11-6 (>= 2:1.6.0)
+libxrender1
+  Depends: libc6 (>= 2.14)
+  Depends: libx11-6 (>= 2:1.6.0)
+libdbus-1-3
+  Depends: libc6 (>= 2.34)
+  Depends: libsystemd0
+libsystemd0
+  Depends: libc6 (>= 2.34)
+  Depends: libcap2 (>= 1:2.10)
+  Depends: libgcrypt20 (>= 1.10.0)
+  Depends: liblz4-1 (>= 0.0~r122)
+  Depends: liblzma5 (>= 5.1.1alpha+20120614)
+  Depends: libzstd1 (>= 1.5.2)
+libcap2
+  Depends: libc6 (>= 2.34)
+libgcrypt20
+  Depends: libc6 (>= 2.34)
+  Depends: libgpg-error0 (>= 1.27)
+libgpg-error0
+  Depends: libc6 (>= 2.34)
+liblz4-1
+  Depends: libc6 (>= 2.14)
+liblzma5
+  Depends: libc6 (>= 2.34)
+libzstd1
+  Depends: libc6 (>= 2.34)
+libgccjit0
+  Depends: binutils
+  Depends: gcc-12-base (= 12.2.0-14)
+  Depends: libc6 (>= 2.36)
+  Depends: libc6-dev (>= 2.23-1~)
+  Depends: libgcc-12-dev
+  Depends: libgmp10 (>= 2:6.2.1+dfsg1)
+  Depends: libisl23 (>= 0.15)
+  Depends: libmpc3 (>= 1.1.0)
+  Depends: libmpfr6 (>= 3.1.3)
+  Depends: libzstd1 (>= 1.5.2)
+  Depends: zlib1g (>= 1:1.1.4)
+binutils
+  Depends: binutils-common (= 2.40-2)
+  Depends: binutils-x86-64-linux-gnu (= 2.40-2)
+  Depends: libbinutils (= 2.40-2)
+binutils-common
+binutils-x86-64-linux-gnu
+  Depends: binutils-common (= 2.40-2)
+  Depends: libbinutils (= 2.40-2)
+  Depends: libc6 (>= 2.36)
+  Depends: libctf-nobfd0 (>= 2.36)
+  Depends: libctf0 (>= 2.36)
+  Depends: libgcc-s1 (>= 4.2)
+  Depends: libgprofng0 (>= 2.40-2)
+  Depends: libjansson4 (>= 2.14)
+  Depends: libstdc++6 (>= 5)
+  Depends: libzstd1 (>= 1.5.2)
+  Depends: zlib1g (>= 1:1.1.4)
+libbinutils
+  Depends: binutils-common (= 2.40-2)
+  Depends: libc6 (>= 2.34)
+  Depends: libzstd1 (>= 1.5.2)
+  Depends: zlib1g (>= 1:1.2.0)
+libctf-nobfd0
+  Depends: libc6 (>= 2.14)
+  Depends: zlib1g (>= 1:1.2.0)
+libctf0
+  Depends: libbinutils (= 2.40-2)
+  Depends: libc6 (>= 2.33)
+  Depends: zlib1g (>= 1:1.2.0)
+libgprofng0
+  Depends: libbinutils (= 2.40-2)
+  Depends: libc6 (>= 2.34)
+  Depends: libgcc-s1 (>= 3.3.1)
+  Depends: libstdc++6 (>= 5.2)
+  Depends: zlib1g (>= 1:1.1.4)
+libstdc++6
+  Depends: gcc-12-base (= 12.2.0-14)
+  Depends: libc6 (>= 2.36)
+  Depends: libgcc-s1 (>= 4.2)
+libjansson4
+  Depends: libc6 (>= 2.14)
+libc6-dev
+  Depends: libc-dev-bin (= 2.36-9+deb12u4)
+  Depends: libc6 (= 2.36-9+deb12u4)
+  Depends: libcrypt-dev
+  Depends: libnsl-dev
+  Depends: linux-libc-dev
+  Depends: rpcsvc-proto
+libc-dev-bin
+  Depends: libc6 (<< 2.37)
+libcrypt-dev
+  Depends: libcrypt1 (= 1:4.4.33-2)
+libcrypt1
+  Depends: libc6 (>= 2.36)
+libnsl-dev
+  Depends: libnsl2 (= 1.3.0-2)
+  Depends: libtirpc-dev
+libnsl2
+  Depends: libc6 (>= 2.14)
+  Depends: libtirpc3 (>= 1.0.2)
+libtirpc3
+  Depends: libc6 (>= 2.34)
+  Depends: libgssapi-krb5-2 (>= 1.17)
+  Depends: libtirpc-common (>= 1.3.3+ds-1)
+libgssapi-krb5-2
+  Depends: libc6 (>= 2.33)
+  Depends: libcom-err2 (>= 1.43.9)
+  Depends: libk5crypto3 (>= 1.20)
+  Depends: libkrb5-3 (= 1.20.1-2+deb12u1)
+  Depends: libkrb5support0 (>= 1.15~beta1)
+libcom-err2
+  Depends: libc6 (>= 2.17)
+libk5crypto3
+  Depends: libc6 (>= 2.33)
+  Depends: libkrb5support0 (>= 1.20)
+libkrb5support0
+  Depends: libc6 (>= 2.34)
+libkrb5-3
+  Depends: libc6 (>= 2.34)
+  Depends: libcom-err2 (>= 1.43.9)
+  Depends: libk5crypto3 (>= 1.20)
+  Depends: libkeyutils1 (>= 1.5.9)
+  Depends: libkrb5support0 (= 1.20.1-2+deb12u1)
+  Depends: libssl3 (>= 3.0.0)
+libkeyutils1
+  Depends: libc6 (>= 2.14)
+libssl3
+  Depends: libc6 (>= 2.34)
+libtirpc-common
+libtirpc-dev
+  Depends: libtirpc3 (= 1.3.3+ds-1)
+linux-libc-dev
+rpcsvc-proto
+  Depends: libc6 (>= 2.34)
+libgcc-12-dev
+  Depends: gcc-12-base (= 12.2.0-14)
+  Depends: libasan8 (>= 12.2.0-14)
+  Depends: libatomic1 (>= 12.2.0-14)
+  Depends: libgcc-s1 (>= 12.2.0-14)
+  Depends: libgomp1 (>= 12.2.0-14)
+  Depends: libitm1 (>= 12.2.0-14)
+  Depends: liblsan0 (>= 12.2.0-14)
+  Depends: libquadmath0 (>= 12.2.0-14)
+  Depends: libtsan2 (>= 12.2.0-14)
+  Depends: libubsan1 (>= 12.2.0-14)
+libasan8
+  Depends: gcc-12-base (= 12.2.0-14)
+  Depends: libc6 (>= 2.34)
+  Depends: libgcc-s1 (>= 3.3)
+libatomic1
+  Depends: gcc-12-base (= 12.2.0-14)
+  Depends: libc6 (>= 2.14)
+libgomp1
+  Depends: gcc-12-base (= 12.2.0-14)
+  Depends: libc6 (>= 2.34)
+libitm1
+  Depends: gcc-12-base (= 12.2.0-14)
+  Depends: libc6 (>= 2.34)
+liblsan0
+  Depends: gcc-12-base (= 12.2.0-14)
+  Depends: libc6 (>= 2.34)
+  Depends: libgcc-s1 (>= 3.3)
+libquadmath0
+  Depends: gcc-12-base (= 12.2.0-14)
+  Depends: libc6 (>= 2.23)
+libtsan2
+  Depends: gcc-12-base (= 12.2.0-14)
+  Depends: libc6 (>= 2.34)
+  Depends: libgcc-s1 (>= 3.3)
+libubsan1
+  Depends: gcc-12-base (= 12.2.0-14)
+  Depends: libc6 (>= 2.34)
+  Depends: libgcc-s1 (>= 3.3)
+  Depends: libstdc++6 (>= 4.1.1)
+libgmp10
+  Depends: libc6 (>= 2.14)
+libisl23
+  Depends: libc6 (>= 2.14)
+  Depends: libgmp10 (>= 2:6.2.1+dfsg1)
+libmpc3
+  Depends: libc6 (>= 2.4)
+  Depends: libgmp10 (>= 2:6.2.1+dfsg1)
+  Depends: libmpfr6 (>= 4.0.0)
+libmpfr6
+  Depends: libc6 (>= 2.14)
+  Depends: libgmp10 (>= 2:6.2.1+dfsg1)
+libgdk-pixbuf-2.0-0
+  Depends: libc6 (>= 2.34)
+  Depends: libgdk-pixbuf2.0-common (>= 2.42.10+dfsg-1)
+  Depends: libglib2.0-0 (>= 2.59.0)
+  Depends: libjpeg62-turbo (>= 1.3.1)
+  Depends: libpng16-16 (>= 1.6.2-1)
+  Depends: libtiff6 (>= 4.0.3)
+  Depends: shared-mime-info
+libgdk-pixbuf2.0-common
+libglib2.0-0
+  Depends: libc6 (>= 2.34)
+  Depends: libffi8 (>= 3.4)
+  Depends: libmount1 (>= 2.35.2-7~)
+  Depends: libpcre2-8-0 (>= 10.22)
+  Depends: libselinux1 (>= 3.1~)
+  Depends: zlib1g (>= 1:1.2.2)
+libffi8
+  Depends: libc6 (>= 2.34)
+libmount1
+  Depends: libblkid1 (>= 2.17.2)
+  Depends: libc6 (>= 2.34)
+  Depends: libselinux1 (>= 3.1~)
+libblkid1
+  Depends: libc6 (>= 2.33)
+libselinux1
+  Depends: libc6 (>= 2.34)
+  Depends: libpcre2-8-0 (>= 10.22)
+libpcre2-8-0
+  Depends: libc6 (>= 2.34)
+libjpeg62-turbo
+  Depends: libc6 (>= 2.14)
+libtiff6
+  Depends: libc6 (>= 2.33)
+  Depends: libdeflate0 (>= 1.0)
+  Depends: libjbig0 (>= 2.0)
+  Depends: libjpeg62-turbo (>= 1.3.1)
+  Depends: liblerc4 (>= 3.0)
+  Depends: liblzma5 (>= 5.1.1alpha+20120614)
+  Depends: libwebp7 (>= 1.2.4)
+  Depends: libzstd1 (>= 1.5.2)
+  Depends: zlib1g (>= 1:1.1.4)
+libdeflate0
+  Depends: libc6 (>= 2.14)
+libjbig0
+  Depends: libc6 (>= 2.4)
+liblerc4
+  Depends: libc6 (>= 2.29)
+  Depends: libgcc-s1 (>= 3.0)
+  Depends: libstdc++6 (>= 11)
+libwebp7
+  Depends: libc6 (>= 2.34)
+shared-mime-info
+  Depends: libc6 (>= 2.33)
+  Depends: libglib2.0-0 (>= 2.35.9)
+  Depends: libxml2 (>= 2.7.4)
+libxml2
+  Depends: libc6 (>= 2.34)
+  Depends: libicu72 (>= 72.1~rc-1~)
+  Depends: liblzma5 (>= 5.1.1alpha+20120614)
+  Depends: zlib1g (>= 1:1.2.3.3)
+libicu72
+  Depends: libc6 (>= 2.34)
+  Depends: libgcc-s1 (>= 3.0)
+  Depends: libstdc++6 (>= 12)
+libgif7
+  Depends: libc6 (>= 2.14)
+libgnutls30
+  Depends: libc6 (>= 2.34)
+  Depends: libgmp10 (>= 2:6.2.1+dfsg1)
+  Depends: libhogweed6 (>= 3.6)
+  Depends: libidn2-0 (>= 2.0.0)
+  Depends: libnettle8 (>= 3.7~)
+  Depends: libp11-kit0 (>= 0.23.18.1)
+  Depends: libtasn1-6 (>= 4.14)
+  Depends: libunistring2 (>= 0.9.7)
+libhogweed6
+  Depends: libc6 (>= 2.14)
+  Depends: libgmp10 (>= 2:6.2.1+dfsg1)
+  Depends: libnettle8
+libnettle8
+  Depends: libc6 (>= 2.17)
+libidn2-0
+  Depends: libc6 (>= 2.14)
+  Depends: libunistring2 (>= 0.9.7)
+libunistring2
+  Depends: libc6 (>= 2.34)
+libp11-kit0
+  Depends: libc6 (>= 2.34)
+  Depends: libffi8 (>= 3.4)
+libtasn1-6
+  Depends: libc6 (>= 2.14)
+libgpm2
+  Depends: libc6 (>= 2.33)
+libgtk-3-0
+  Depends: adwaita-icon-theme
+  Depends: hicolor-icon-theme
+  Depends: libatk-bridge2.0-0 (>= 2.15.1)
+  Depends: libatk1.0-0 (>= 2.35.1)
+  Depends: libc6 (>= 2.34)
+  Depends: libcairo-gobject2 (>= 1.14.0)
+  Depends: libcairo2 (>= 1.14.0)
+  Depends: libcolord2 (>= 0.1.10)
+  Depends: libcups2 (>= 1.7.0)
+  Depends: libepoxy0 (>= 1.4.3)
+  Depends: libfontconfig1 (>= 2.12.6)
+  Depends: libfribidi0 (>= 0.19.7)
+  Depends: libgdk-pixbuf-2.0-0 (>= 2.40.0)
+  Depends: libglib2.0-0 (>= 2.59.0)
+  Depends: libgtk-3-common (>= 3.24.38-2~deb12u1)
+  Depends: libharfbuzz0b (>= 2.2.0)
+  Depends: libpango-1.0-0 (>= 1.45.5)
+  Depends: libpangocairo-1.0-0 (>= 1.44.0)
+  Depends: libpangoft2-1.0-0 (>= 1.44.0)
+  Depends: libwayland-client0 (>= 1.20.0)
+  Depends: libwayland-cursor0 (>= 1.14.91)
+  Depends: libwayland-egl1 (>= 1.15.0)
+  Depends: libx11-6 (>= 2:1.4.99.1)
+  Depends: libxcomposite1 (>= 1:0.4.5)
+  Depends: libxcursor1 (>> 1.1.2)
+  Depends: libxdamage1 (>= 1:1.1)
+  Depends: libxext6
+  Depends: libxfixes3
+  Depends: libxi6 (>= 2:1.2.99.4)
+  Depends: libxinerama1 (>= 2:1.1.4)
+  Depends: libxkbcommon0 (>= 0.5.0)
+  Depends: libxrandr2 (>= 2:1.5.0)
+  Depends: shared-mime-info
+adwaita-icon-theme
+  Depends: gtk-update-icon-cache
+  Depends: hicolor-icon-theme
+gtk-update-icon-cache
+  Depends: libc6 (>= 2.34)
+  Depends: libgdk-pixbuf-2.0-0 (>= 2.40.0)
+  Depends: libglib2.0-0 (>= 2.57.2)
+hicolor-icon-theme
+libatk-bridge2.0-0
+  Depends: libatk1.0-0 (>= 2.33.1)
+  Depends: libatspi2.0-0 (>= 2.9.90)
+  Depends: libc6 (>= 2.7)
+  Depends: libdbus-1-3 (>= 1.9.14)
+  Depends: libglib2.0-0 (>= 2.62)
+libatk1.0-0
+  Depends: at-spi2-common
+  Depends: libc6 (>= 2.4)
+  Depends: libglib2.0-0 (>= 2.62)
+at-spi2-common
+libatspi2.0-0
+  Depends: libc6 (>= 2.7)
+  Depends: libdbus-1-3 (>= 1.9.14)
+  Depends: libglib2.0-0 (>= 2.62)
+  Depends: libx11-6 (>= 2:1.2.99.901)
+  Depends: libxi6 (>= 2:1.2.99.4)
+libxi6
+  Depends: libc6 (>= 2.14)
+  Depends: libx11-6 (>= 2:1.6.0)
+  Depends: libxext6
+libcairo-gobject2
+  Depends: libcairo2 (= 1.16.0-7)
+  Depends: libglib2.0-0 (>= 2.14.0)
+libcolord2
+  Depends: libc6 (>= 2.29)
+  Depends: libglib2.0-0 (>= 2.58)
+  Depends: liblcms2-2 (>= 2.6)
+  Depends: libudev1 (>= 196)
+liblcms2-2
+  Depends: libc6 (>= 2.29)
+libudev1
+  Depends: libc6 (>= 2.34)
+libcups2
+  Depends: libavahi-client3 (>= 0.6.16)
+  Depends: libavahi-common3 (>= 0.6.16)
+  Depends: libc6 (>= 2.36)
+  Depends: libgnutls30 (>= 3.7.5)
+  Depends: libgssapi-krb5-2 (>= 1.17)
+  Depends: zlib1g (>= 1:1.2.0)
+libavahi-client3
+  Depends: libavahi-common3 (= 0.8-10)
+  Depends: libc6 (>= 2.34)
+  Depends: libdbus-1-3 (>= 1.9.14)
+libavahi-common3
+  Depends: libavahi-common-data (= 0.8-10)
+  Depends: libc6 (>= 2.34)
+libavahi-common-data
+libepoxy0
+  Depends: libc6 (>= 2.7)
+libfribidi0
+  Depends: libc6 (>= 2.3.4)
+libgtk-3-common
+  Depends: dconf-gsettings-backend
+  Depends: gsettings-backend
+dconf-gsettings-backend
+  Depends: dconf-service (>= 0.40.0-4)
+  Depends: libc6 (>= 2.14)
+  Depends: libdconf1 (= 0.40.0-4)
+  Depends: libglib2.0-0 (>= 2.55.2)
+dconf-service
+  Depends: dbus-session-bus
+  Depends: default-dbus-session-bus
+  Depends: libc6 (>= 2.34)
+  Depends: libdconf1 (= 0.40.0-4)
+  Depends: libglib2.0-0 (>= 2.55.2)
+  Depends: procps
+dbus-session-bus
+default-dbus-session-bus
+libdconf1
+  Depends: libc6 (>= 2.14)
+  Depends: libglib2.0-0 (>= 2.55.2)
+procps
+  Depends: init-system-helpers (>= 1.29~)
+  Depends: libc6 (>= 2.34)
+  Depends: libncursesw6 (>= 6)
+  Depends: libproc2-0 (>= 2:4.0.2)
+  Depends: libtinfo6 (>= 6)
+libncursesw6
+  Depends: libc6 (>= 2.34)
+  Depends: libtinfo6 (= 6.4-4)
+libtinfo6
+  Depends: libc6 (>= 2.34)
+libproc2-0
+  Depends: libc6 (>= 2.34)
+  Depends: libsystemd0 (>= 209)
+gsettings-backend
+libharfbuzz0b
+  Depends: libc6 (>= 2.34)
+  Depends: libfreetype6 (>= 2.11.0)
+  Depends: libglib2.0-0 (>= 2.31.8)
+  Depends: libgraphite2-3 (>= 1.2.2)
+libgraphite2-3
+  Depends: libc6 (>= 2.14)
+libpango-1.0-0
+  Depends: fontconfig (>= 2.13.0)
+  Depends: libc6 (>= 2.14)
+  Depends: libfribidi0 (>= 1.0.6)
+  Depends: libglib2.0-0 (>= 2.67.3)
+  Depends: libharfbuzz0b (>= 5.1.0)
+  Depends: libthai0 (>= 0.1.25)
+fontconfig
+  Depends: fontconfig-config
+  Depends: libc6 (>= 2.34)
+  Depends: libfontconfig1 (>= 2.13.0)
+  Depends: libfreetype6 (>= 2.2.1)
+libthai0
+  Depends: libc6 (>= 2.14)
+  Depends: libdatrie1 (>= 0.2.0)
+  Depends: libthai-data (>= 0.1.10)
+libdatrie1
+  Depends: libc6 (>= 2.14)
+libthai-data
+libpangocairo-1.0-0
+Depends: libc6 (>= 2.4)
+  Depends: libcairo2 (>= 1.12.10)
+  Depends: libfontconfig1 (>= 2.13.0)
+  Depends: libglib2.0-0 (>= 2.62.0)
+  Depends: libharfbuzz0b (>= 2.6.0)
+  Depends: libpango-1.0-0 (= 1.50.12+ds-1)
+  Depends: libpangoft2-1.0-0 (= 1.50.12+ds-1)
+libpangoft2-1.0-0
+  Depends: libc6 (>= 2.14)
+  Depends: libfontconfig1 (>= 2.13.0)
+  Depends: libfreetype6 (>= 2.2.1)
+  Depends: libglib2.0-0 (>= 2.67.3)
+  Depends: libharfbuzz0b (>= 5.1.0)
+  Depends: libpango-1.0-0 (= 1.50.12+ds-1)
+libwayland-client0
+  Depends: libc6 (>= 2.28)
+  Depends: libffi8 (>= 3.4)
+libwayland-cursor0
+  Depends: libc6 (>= 2.28)
+  Depends: libwayland-client0 (>= 1.20.0)
+libwayland-egl1
+  Depends: libc6 (>= 2.2.5)
+libxcomposite1
+  Depends: libc6 (>= 2.4)
+  Depends: libx11-6 (>= 2:1.4.99.1)
+libxcursor1
+  Depends: libc6 (>= 2.4)
+  Depends: libx11-6 (>= 2:1.4.99.1)
+  Depends: libxfixes3
+  Depends: libxrender1
+libxfixes3
+  Depends: libc6 (>= 2.14)
+  Depends: libx11-6 (>= 2:1.6.0)
+libxdamage1
+  Depends: libc6 (>= 2.4)
+  Depends: libx11-6 (>= 2:1.4.99.1)
+libxinerama1
+  Depends: libc6 (>= 2.4)
+  Depends: libx11-6 (>= 2:1.6.0)
+  Depends: libxext6
+libxkbcommon0
+  Depends: libc6 (>= 2.33)
+  Depends: xkb-data
+xkb-data
+libxrandr2
+  Depends: libc6 (>= 2.14)
+  Depends: libx11-6 (>= 2:1.6.0)
+  Depends: libxext6
+  Depends: libxrender1
+libice6
+  Depends: libbsd0 (>= 0.2.0)
+  Depends: libc6 (>= 2.14)
+  Depends: x11-common
+libm17n-0
+  Depends: libc6 (>= 2.34)
+  Depends: libfontconfig1 (>= 2.12.6)
+  Depends: libfreetype6 (>= 2.2.1)
+  Depends: libfribidi0 (>= 0.19.2)
+  Depends: libgd3 (>= 2.1.0~alpha~)
+  Depends: libotf1 (>= 0.9.16)
+  Depends: libthai0 (>= 0.1.12)
+  Depends: libx11-6
+  Depends: libxft2 (>> 2.1.1)
+  Depends: libxml2 (>= 2.7.4)
+  Depends: libxt6
+  Depends: m17n-db (>= 1.6.0)
+libgd3
+  Depends: libavif15 (>= 0.11.1)
+  Depends: libc6 (>= 2.29)
+  Depends: libfontconfig1 (>= 2.12.6)
+  Depends: libfreetype6 (>= 2.2.1)
+  Depends: libheif1 (>= 1.3.2)
+  Depends: libjpeg62-turbo (>= 1.3.1)
+  Depends: libpng16-16 (>= 1.6.2-1)
+  Depends: libtiff6 (>= 4.0.3)
+  Depends: libwebp7 (>= 1.2.4)
+  Depends: libxpm4
+libavif15
+  Depends: libaom3 (>= 3.2.0)
+  Depends: libc6 (>= 2.14)
+  Depends: libdav1d6 (>= 0.1.0)
+  Depends: libgav1-1 (>= 0.18.0)
+  Depends: librav1e0 (>= 0.5.1)
+  Depends: libsvtav1enc1 (>= 1.2.1+dfsg)
+  Depends: libyuv0 (>= 0.0~git20221018)
+libaom3
+  Depends: libc6 (>= 2.34)
+libdav1d6
+  Depends: libc6 (>= 2.32)
+libgav1-1
+  Depends: libabsl20220623 (>= 0~20220623.0-1)
+  Depends: libc6 (>= 2.34)
+  Depends: libgcc-s1 (>= 3.3.1)
+  Depends: libstdc++6 (>= 12)
+libabsl20220623
+  Depends: libc6 (>= 2.34)
+  Depends: libgcc-s1 (>= 3.0)
+  Depends: libstdc++6 (>= 11)
+librav1e0
+  Depends: libc6 (>= 2.34)
+  Depends: libgcc-s1 (>= 4.2)
+libsvtav1enc1
+  Depends: libc6 (>= 2.34)
+libyuv0
+  Depends: libc6 (>= 2.14)
+  Depends: libgcc-s1 (>= 3.0)
+  Depends: libjpeg62-turbo (>= 1.3.1)
+  Depends: libstdc++6 (>= 5)
+libheif1
+  Depends: libaom3 (>= 3.2.0)
+  Depends: libc6 (>= 2.34)
+  Depends: libdav1d6 (>= 0.1.0)
+  Depends: libde265-0 (>= 1.0.7)
+  Depends: libgcc-s1 (>= 3.0)
+  Depends: libstdc++6 (>= 11)
+  Depends: libx265-199 (>= 3.5)
+  Depends: zlib1g (>= 1:1.1.4)
+libde265-0
+  Depends: libc6 (>= 2.34)
+  Depends: libgcc-s1 (>= 3.0)
+  Depends: libstdc++6 (>= 11)
+libx265-199
+  Depends: libc6 (>= 2.34)
+  Depends: libnuma1 (>= 2.0.11)
+  Depends: libstdc++6 (>= 4.1.1)
+libnuma1
+  Depends: libc6 (>= 2.34)
+libxpm4
+  Depends: libc6 (>= 2.34)
+  Depends: libx11-6
+libotf1
+  Depends: libc6 (>= 2.14)
+  Depends: libfreetype6 (>= 2.2.1)
+libxft2
+  Depends: libc6 (>= 2.14)
+  Depends: libfontconfig1 (>= 2.12.6)
+  Depends: libfreetype6 (>= 2.3.5)
+  Depends: libx11-6
+  Depends: libxrender1
+libxt6
+  Depends: libc6 (>= 2.33)
+  Depends: libice6 (>= 1:1.0.0)
+  Depends: libsm6
+  Depends: libx11-6
+libsm6
+  Depends: libc6 (>= 2.14)
+  Depends: libice6 (>= 1:1.0.0)
+  Depends: libuuid1 (>= 2.16)
+libuuid1
+  Depends: libc6 (>= 2.25)
+m17n-db
+librsvg2-2
+  Depends: libc6 (>= 2.34)
+  Depends: libcairo-gobject2 (>= 1.12.16)
+  Depends: libcairo2 (>= 1.15.12)
+  Depends: libgcc-s1 (>= 4.2)
+  Depends: libgdk-pixbuf-2.0-0 (>= 2.31.1)
+  Depends: libglib2.0-0 (>= 2.50.0)
+  Depends: libpango-1.0-0 (>= 1.48.11)
+  Depends: libpangocairo-1.0-0 (>= 1.48.11)
+  Depends: libxml2 (>= 2.9.0)
+emacs-lucid
+  Depends: emacs-bin-common (= 1:28.2+1-15)
+  Depends: emacs-common (= 1:28.2+1-15)
+  Depends: libacl1 (>= 2.2.23)
+  Depends: libasound2 (>= 1.0.16)
+  Depends: libc6 (>= 2.35)
+  Depends: libcairo2 (>= 1.7.2)
+  Depends: libdbus-1-3 (>= 1.9.14)
+  Depends: libfontconfig1 (>= 2.12.6)
+  Depends: libfreetype6 (>= 2.2.1)
+  Depends: libgccjit0 (>= 11)
+  Depends: libgdk-pixbuf-2.0-0 (>= 2.22.0)
+  Depends: libgif7 (>= 5.1)
+  Depends: libglib2.0-0 (>= 2.16.0)
+  Depends: libgmp10 (>= 2:6.2.1+dfsg1)
+  Depends: libgnutls30 (>= 3.7.5)
+  Depends: libgpm2 (>= 1.20.7)
+  Depends: libharfbuzz0b (>= 0.9.42)
+  Depends: libice6 (>= 1:1.0.0)
+  Depends: libjansson4 (>= 2.14)
+  Depends: libjpeg62-turbo (>= 1.3.1)
+  Depends: liblcms2-2 (>= 2.2+git20110628)
+  Depends: libm17n-0 (>= 1.6.1)
+  Depends: libotf1 (>= 0.9.16)
+  Depends: libpng16-16 (>= 1.6.2-1)
+  Depends: librsvg2-2 (>= 2.47.3)
+  Depends: libselinux1 (>= 3.1~)
+  Depends: libsm6
+  Depends: libsystemd0
+  Depends: libtiff6 (>= 4.0.3)
+  Depends: libtinfo6 (>= 6)
+  Depends: libx11-6
+  Depends: libxext6
+  Depends: libxfixes3 (>= 1:4.0.1)
+  Depends: libxinerama1 (>= 2:1.1.4)
+  Depends: libxml2 (>= 2.7.4)
+  Depends: libxmu6 (>= 2:1.1.3)
+  Depends: libxpm4
+  Depends: libxrandr2 (>= 2:1.2.99.3)
+  Depends: libxrender1
+  Depends: libxt6
+  Depends: xaw3dg (>= 1.5+E-1)
+  Depends: zlib1g (>= 1:1.1.4)
+libxmu6
+  Depends: libc6 (>= 2.14)
+  Depends: libx11-6
+  Depends: libxext6
+  Depends: libxt6
+xaw3dg
+  Depends: libc6 (>= 2.14)
+  Depends: libx11-6
+  Depends: libxext6
+  Depends: libxmu6 (>= 2:1.1.3)
+  Depends: libxt6
+emacs-nox
+  Depends: emacs-bin-common (= 1:28.2+1-15)
+  Depends: emacs-common (= 1:28.2+1-15)
+  Depends: libacl1 (>= 2.2.23)
+  Depends: libasound2 (>= 1.0.16)
+  Depends: libc6 (>= 2.35)
+  Depends: libdbus-1-3 (>= 1.9.14)
+  Depends: libgccjit0 (>= 11)
+  Depends: libgmp10 (>= 2:6.2.1+dfsg1)
+  Depends: libgnutls30 (>= 3.7.5)
+  Depends: libgpm2 (>= 1.20.7)
+  Depends: libjansson4 (>= 2.14)
+  Depends: liblcms2-2 (>= 2.2+git20110628)
+  Depends: libselinux1 (>= 3.1~)
+  Depends: libsystemd0
+  Depends: libtinfo6 (>= 6)
+  Depends: libxml2 (>= 2.7.4)
+  Depends: zlib1g (>= 1:1.1.4)
