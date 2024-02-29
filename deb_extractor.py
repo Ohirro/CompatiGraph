@@ -40,8 +40,3 @@ class DepsExtractor:
         
         return dependencies
 
-#Example
-if __name__ == "__main__": 
-    dep_extr = DepsExtractor("vim-nox_8.1.0875-5+deb10u6_amd64.deb")
-    dependencies = dep_extr.extract_dependencies_from_deb()
-    print(f"Dependencies: {dependencies}")
