@@ -92,6 +92,7 @@ class LogicSolver:
             versions = set(dep.version for dep in equals)
             if len(versions) == 1:
                 strictest_conditions['='] = [Dependency('=', versions.pop(), None)]
+                return strictest_conditions
             else:
                 raise ValueError("Conflicting '=' conditions")
 
