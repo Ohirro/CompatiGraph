@@ -1,0 +1,10 @@
+{
+  "name": "New dev",
+  "image": "fedora-is-shit",
+  "extentions": [
+    "ms-python.python"
+  ],
+  "settings": {
+    "python.pythonPath": "/usr/local/bin/python"
+  }
+}
