@@ -27,6 +27,13 @@ class DebianPackageImporter:
 
     def _setup_database(self):
         cursor = self.conn.cursor()
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS db_metadata (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            created_at TIMESTAMP NOT NULL,
+            url TEXT
+        )
+        """)
         cursor.execute(f"""
         CREATE TABLE IF NOT EXISTS {self.table_name} (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -134,7 +141,44 @@ class DebianPackageImporter:
     def close(self):
         self.conn.close()
 
+class DebianPackageInfo(DebianPackageImporter):
+    def __init__(self, db_path, debian_url, force_reload=False):
+        super().__init__(db_path, debian_url, force_reload)
+
+    def get_version(self, package_names):
+        """Возвращает версии для указанных пакетов."""
+        versions = {}
+        with self.conn as conn:
+            cursor = conn.cursor()
+            for name in package_names:
+                cursor.execute(f"SELECT version FROM {self.table_name} WHERE package_name = ?", (name,))
+                result = cursor.fetchone()
+                versions[name] = result[0] if result else None
+        return versions
+
+    def get_data(self, package_names):
+        """Возвращает полные данные для указанных пакетов."""
+        data = {}
+        with self.conn as conn:
+            cursor = conn.cursor()
+            for name in package_names:
+                cursor.execute(f"SELECT * FROM {self.table_name} WHERE package_name = ?", (name,))
+                result = cursor.fetchone()
+                if result:
+                    data[name] = {
+                        'id': result[0],
+                        'package_name': result[1],
+                        'version': result[2],
+                        'architecture': result[3],
+                        'dependencies': result[4],
+                        'description': result[5]
+                    }
+                else:
+                    data[name] = None
+        return data
+
 # Example usage
 if __name__ == "__main__":
-    importer = DebianPackageImporter('debian_packages.db', "http://deb.debian.org/debian/dists/stable/main/binary-amd64/Packages.gz")
+    importer = DebianPackageInfo('debian_packages.db', "http://deb.debian.org/debian/dists/stable/main/binary-amd64/Packages.gz")
+    print(importer.get_data(["vim"]))
     importer.close()
