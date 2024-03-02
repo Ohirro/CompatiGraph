@@ -13,7 +13,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'compatigraph=compati_graph.cli:main',
+            'compatigraph=compatigraph.main:run',
         ],
     },
     classifiers=[

@@ -1,5 +1,5 @@
 import argparse
-from executor import Executor
+from .executor import Executor
 
 class CLI:
     def __init__(self):

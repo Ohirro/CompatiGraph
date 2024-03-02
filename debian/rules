@@ -3,7 +3,7 @@
 export PYBUILD_NAME=compatigraph
 
 %:
-    dh $@ --with python3 --buildsystem=pybuild
+	dh $@ --with python3 --buildsystem=pybuild
 
 override_dh_auto_test:
 	# Disable test running
