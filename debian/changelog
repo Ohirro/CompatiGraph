@@ -1,0 +1,17 @@
+compatigraph (1.0.0) unstable; urgency=low
+  * fc1c06b - Merge pull request #4 from Ohirro/cli_implement (2024-03-02 14:50:07 +0300)
+  * 0381f25 - CLI initial support there are several things has to done to fully implement CLI 1) Verbose option 2) solve function must be separated into solve and show 3) Direct DB manipulation must be implemented (2024-03-02 14:46:59 +0300)
+  * a20f719 - Merge pull request #3 from Ohirro/sql-implement (2024-03-01 22:35:11 +0300)
+  * d71f657 - Add a simple DB creactor Download packages.gz then create a SQLlite DB with it (2024-03-01 00:53:14 +0300)
+  * b6d5c0e - Merge pull request #2 from Ohirro/deb-handler (2024-03-01 00:23:59 +0300)
+  * 89700ba - rm example (2024-03-01 00:23:41 +0300)
+  * 5ad0b05 - Add debian file handler Create a simple deb control file extractor this was made like a class, beacause I want to make make a bit faster for larger packages, like for kernel (2024-03-01 00:04:56 +0300)
+  * 28ec3c7 - add conditions for equals variant (2024-02-29 20:44:20 +0300)
+  * dc94458 - add license (2024-02-29 00:02:24 +0300)
+  * 3c7c141 - Merge pull request #1 from Ohirro/parser_feature (2024-02-28 23:59:58 +0300)
+  * 8851af2 - Archetectural update Divide logic into a separate module Devide parser and apt interaction modules (2024-02-28 23:56:22 +0300)
+  * e2da631 - add license (2024-02-28 22:49:34 +0300)
+  * 738b40c - first (2024-02-28 22:44:02 +0300)
+  * 2df2c12 - Initial commit (2024-02-28 15:47:10 +0300)
+
+ -- Maintainer Ilya Kuksenok <kuksyenok.i.s@gmail.com>  02.03.24

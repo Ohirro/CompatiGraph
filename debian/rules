@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=compatigraph
+
+%:
+    dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_auto_test:
+	# Disable test running
+	# If you want to enable tests, remove or modify this override.
+
+override_dh_auto_install:
+	dh_auto_install
+	# Additional commands to run after install can go here.
