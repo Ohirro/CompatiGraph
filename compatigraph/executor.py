@@ -1,5 +1,5 @@
-from apt_worker import DepHandler, AptExecutor
-from logic import LogicSolver
+from .apt_worker import DepHandler, AptExecutor
+from .logic import LogicSolver
 
 from pathlib import Path
 from typing import Union

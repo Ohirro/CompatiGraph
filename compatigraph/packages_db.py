@@ -146,7 +146,7 @@ class DebianPackageInfo(DebianPackageImporter):
         super().__init__(db_path, debian_url, force_reload)
 
     def get_version(self, package_names):
-        """Возвращает версии для указанных пакетов."""
+        """Returns package versions"""
         versions = {}
         with self.conn as conn:
             cursor = conn.cursor()
@@ -157,7 +157,7 @@ class DebianPackageInfo(DebianPackageImporter):
         return versions
 
     def get_data(self, package_names):
-        """Возвращает полные данные для указанных пакетов."""
+        """Returns full data for a package."""
         data = {}
         with self.conn as conn:
             cursor = conn.cursor()
@@ -178,6 +178,7 @@ class DebianPackageInfo(DebianPackageImporter):
         return data
 
 # Example usage
+# TODO add apt sources parser
 if __name__ == "__main__":
     importer = DebianPackageInfo('debian_packages.db', "http://deb.debian.org/debian/dists/stable/main/binary-amd64/Packages.gz")
     print(importer.get_data(["vim"]))

@@ -1,5 +1,5 @@
 from debian.debian_support import Version
-from apt_worker import Dependency
+from .apt_worker import Dependency
 
 class LogicSolver:
 
