@@ -91,25 +91,33 @@ class LogicSolver:
         if equals:
             versions = set(dep.version for dep in equals)
             if len(versions) == 1:
-                strictest_conditions['='] = [Dependency('=', versions.pop(), None)]
+                version = versions.pop()
+                package = equals[0].package  # Предполагаем, что все объекты в equals относятся к одному пакету
+                strictest_conditions['='] = [Dependency('=', version, package)]
                 return strictest_conditions
             else:
                 raise ValueError("Conflicting '=' conditions")
 
-        # Максимальное условие для ">"
-        if strictly_greater:
-            max_version = max(strictly_greater, key=lambda dep: Version(dep.version)).version
-            strictest_conditions['>>'] = [Dependency('>>', max_version, None)]
-        elif greater_or_equals:  # Используем ">=" если нет ">>"
-            max_version = max(greater_or_equals, key=lambda dep: Version(dep.version)).version
-            strictest_conditions['>='] = [Dependency('>=', max_version, None)]
+        # Выбор наиболее строгого условия для ">"
+        if strictly_greater and greater_or_equals:
+            if Version(strictly_greater[0].version) > Version(greater_or_equals[0].version):
+                strictest_conditions['>>'] = [Dependency('>>', strictly_greater[0].version, strictly_greater[0].package)]
+            else:
+                strictest_conditions['>='] = [Dependency('>=', greater_or_equals[0].version, greater_or_equals[0].package)]
+        elif strictly_greater:
+            strictest_conditions['>>'] = [Dependency('>>', strictly_greater[0].version, strictly_greater[0].package)]
+        elif greater_or_equals:
+            strictest_conditions['>='] = [Dependency('>=', greater_or_equals[0].version, greater_or_equals[0].package)]
 
-        # Минимальное условие для "<"
-        if strictly_less:
-            min_version = min(strictly_less, key=lambda dep: Version(dep.version)).version
-            strictest_conditions['<<'] = [Dependency('<<', min_version, None)]
-        elif less_or_equals:  # Используем "<=" если нет "<<"
-            min_version = min(less_or_equals, key=lambda dep: Version(dep.version)).version
-            strictest_conditions['<='] = [Dependency('<=', min_version, None)]
+        # Выбор наиболее строгого условия для "<"
+        if strictly_less and less_or_equals:
+            if Version(strictly_less[-1].version) < Version(less_or_equals[-1].version):
+                strictest_conditions['<<'] = [Dependency('<<', strictly_less[-1].version, strictly_less[-1].package)]
+            else:
+                strictest_conditions['<='] = [Dependency('<=', less_or_equals[-1].version, less_or_equals[-1].package)]
+        elif strictly_less:
+            strictest_conditions['<<'] = [Dependency('<<', strictly_less[-1].version, strictly_less[-1].package)]
+        elif less_or_equals:
+            strictest_conditions['<='] = [Dependency('<=', less_or_equals[-1].version, less_or_equals[-1].package)]
 
         return strictest_conditions

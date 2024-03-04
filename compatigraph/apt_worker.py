@@ -11,6 +11,29 @@ class Dependency:
     def __repr__(self):
         return f"Dependency(operator='{self.operator}', version='{self.version}', package='{self.package}')"
 
+    def is_satisfied_by(self, other_version):
+        """
+        Проверяет, удовлетворяет ли переданная версия условию зависимости.
+
+        :param other_version: Строка с версией для проверки.
+        :return: True, если условие удовлетворено, иначе False.
+        """
+        other_version = debian_support.Version(other_version)
+
+        if self.operator == '=':
+            return self.version == other_version
+        elif self.operator == '>>':
+            return other_version > self.version
+        elif self.operator == '>=':
+            return other_version >= self.version
+        elif self.operator == '<<':
+            return other_version < self.version
+        elif self.operator == '<=':
+            return other_version <= self.version
+        elif self.operator == 'any':
+            return True
+        else:
+            raise ValueError(f"Неизвестный оператор: {self.operator}")
 
 class AptExecutor:
 

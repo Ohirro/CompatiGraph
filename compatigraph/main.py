@@ -1,4 +1,4 @@
-from .cli import CLI
+from compatigraph.cli import CLI
 
 def run()->None:
     getter_cli = CLI()

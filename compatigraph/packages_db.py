@@ -6,6 +6,7 @@ from io import BytesIO
 from datetime import datetime, timedelta
 from tqdm import tqdm
 
+Metadata = "db_metadata"
 class DebianPackageImporter:
     def __init__(self, db_path, debian_url, force_reload=False):
         self.db_path = db_path
@@ -44,7 +45,7 @@ class DebianPackageImporter:
             description TEXT
         )
         """)
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_package_name ON {self.table_name}(package_name)")
+        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_package_name_version ON {self.table_name}(package_name, version)")
         self.conn.commit()
 
     def _update_metadata_after_insert(self):
@@ -141,45 +142,59 @@ class DebianPackageImporter:
     def close(self):
         self.conn.close()
 
-class DebianPackageInfo(DebianPackageImporter):
-    def __init__(self, db_path, debian_url, force_reload=False):
-        super().__init__(db_path, debian_url, force_reload)
+class DebianPackageInfo:
+    def __init__(self, db_path):
+        self.db_path = db_path
+        self.conn = sqlite3.connect(self.db_path)
+        self.tables = []
+        self._fetch_table_names()
 
-    def get_version(self, package_names):
-        """Returns package versions"""
-        versions = {}
-        with self.conn as conn:
-            cursor = conn.cursor()
-            for name in package_names:
-                cursor.execute(f"SELECT version FROM {self.table_name} WHERE package_name = ?", (name,))
-                result = cursor.fetchone()
-                versions[name] = result[0] if result else None
-        return versions
+    def _fetch_table_names(self):
+        cursor = self.conn.cursor()
+        # TODO переделать, чтобы явно сличать структуру
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name != ?", (Metadata,))
+        rows = cursor.fetchall()
+        self.tables = [row[0] for row in rows]
 
-    def get_data(self, package_names):
-        """Returns full data for a package."""
-        data = {}
-        with self.conn as conn:
-            cursor = conn.cursor()
-            for name in package_names:
-                cursor.execute(f"SELECT * FROM {self.table_name} WHERE package_name = ?", (name,))
-                result = cursor.fetchone()
-                if result:
-                    data[name] = {
-                        'id': result[0],
-                        'package_name': result[1],
-                        'version': result[2],
-                        'architecture': result[3],
-                        'dependencies': result[4],
-                        'description': result[5]
-                    }
-                else:
-                    data[name] = None
-        return data
+    def check_dependencies_in_table(self, table_name, dependencies):
+        """
+        Проверяет зависимости в конкретной таблице.
+
+        :param table_name: Имя таблицы для проверки.
+        :param dependencies: Словарь зависимостей для проверки.
+        :return: Список ошибок.
+        """
+        errors = []
+        cursor = self.conn.cursor()
+
+        for package, deps in dependencies.items():
+            for operator, dep_list in deps.items():
+                for dep in dep_list:
+                    cursor.execute(f"SELECT version FROM {table_name} WHERE package_name = ?", (dep.package,))
+                    result = cursor.fetchone()
+                    if not result or not dep.is_satisfied_by(result[0]):
+                        errors.append(f"Зависимость для пакета {dep.package} не удовлетворена: {result[0]}{dep.operator}{dep.version}")
+
+        return errors
+
+    def check_dependencies_in_all_tables(self, dependencies):
+        """
+        Проверяет зависимости во всех таблицах.
+
+        :param dependencies: Словарь зависимостей для проверки.
+        :return: Словарь ошибок по таблицам.
+        """
+        all_errors = {}
+
+        for table in self.tables:
+            errors = self.check_dependencies_in_table(table, dependencies)
+            if errors:
+                all_errors[table] = errors
+
+        return all_errors
 
 # Example usage
 # TODO add apt sources parser
 if __name__ == "__main__":
-    importer = DebianPackageInfo('debian_packages.db', "http://deb.debian.org/debian/dists/stable/main/binary-amd64/Packages.gz")
-    print(importer.get_data(["vim"]))
+    importer = DebianPackageImporter('debian_packages.db', "http://deb.debian.org/debian/dists/sid/main/binary-amd64/Packages.gz")
     importer.close()
