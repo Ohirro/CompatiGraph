@@ -1,3 +1,8 @@
 .env
 .devcontainer
-
+*.egg-info
+.debhelper
+.pybuild
+.vscode
+DEBIAN
+usr
