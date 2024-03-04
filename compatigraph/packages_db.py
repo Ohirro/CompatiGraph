@@ -1,12 +1,15 @@
-import requests
-import sqlite3
 import gzip
 import re
-from io import BytesIO
+import sqlite3
 from datetime import datetime, timedelta
+from io import BytesIO
+
+import requests
 from tqdm import tqdm
 
 Metadata = "db_metadata"
+
+
 class DebianPackageImporter:
     def __init__(self, db_path, debian_url, force_reload=False):
         self.db_path = db_path
@@ -22,20 +25,23 @@ class DebianPackageImporter:
 
     def _generate_table_name(self, url):
         # Удаляем протокол и заменяем недопустимые символы на подчеркивания
-        name = re.sub(r'https?://', '', url)
-        name = re.sub(r'[^a-zA-Z0-9_]', '_', name)
-        return 'packages_' + name[:50]  # Обрезаем, чтобы имя не было слишком длинным
+        name = re.sub(r"https?://", "", url)
+        name = re.sub(r"[^a-zA-Z0-9_]", "_", name)
+        return "packages_" + name[:50]  # Обрезаем, чтобы имя не было слишком длинным
 
     def _setup_database(self):
         cursor = self.conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
         CREATE TABLE IF NOT EXISTS db_metadata (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             created_at TIMESTAMP NOT NULL,
             url TEXT
         )
-        """)
-        cursor.execute(f"""
+        """
+        )
+        cursor.execute(
+            f"""
         CREATE TABLE IF NOT EXISTS {self.table_name} (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             package_name TEXT NOT NULL,
@@ -44,8 +50,11 @@ class DebianPackageImporter:
             dependencies TEXT,
             description TEXT
         )
-        """)
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_package_name_version ON {self.table_name}(package_name, version)")
+        """
+        )
+        cursor.execute(
+            f"CREATE INDEX IF NOT EXISTS idx_package_name_version ON {self.table_name}(package_name, version)"
+        )
         self.conn.commit()
 
     def _update_metadata_after_insert(self):
@@ -53,7 +62,10 @@ class DebianPackageImporter:
         if cursor.execute("SELECT COUNT(*) FROM db_metadata").fetchone()[0] == 0:
             cursor.execute("INSERT INTO db_metadata (created_at, url) VALUES (?, ?)", (datetime.now(), self.url))
         else:
-            cursor.execute("UPDATE db_metadata SET created_at = ?, url = ? WHERE id = (SELECT MAX(id) FROM db_metadata)", (datetime.now(), self.url))
+            cursor.execute(
+                "UPDATE db_metadata SET created_at = ?, url = ? WHERE id = (SELECT MAX(id) FROM db_metadata)",
+                (datetime.now(), self.url),
+            )
         self.conn.commit()
 
     def _clear_database(self):
@@ -83,26 +95,29 @@ class DebianPackageImporter:
         prepared_packages = []
         for pkg in packages:
             prepared_pkg = {
-                'Package': pkg.get('Package', ''),
-                'Version': pkg.get('Version', ''),
-                'Architecture': pkg.get('Architecture', ''),
-                'Depends': pkg.get('Depends', ''),
-                'Description': pkg.get('Description', '')
+                "Package": pkg.get("Package", ""),
+                "Version": pkg.get("Version", ""),
+                "Architecture": pkg.get("Architecture", ""),
+                "Depends": pkg.get("Depends", ""),
+                "Description": pkg.get("Description", ""),
             }
             prepared_packages.append(prepared_pkg)
 
         with self.conn:
             cursor = self.conn.cursor()
-            cursor.executemany(f"""
+            cursor.executemany(
+                f"""
             INSERT INTO {self.table_name} (package_name, version, architecture, dependencies, description)
             VALUES (:Package, :Version, :Architecture, :Depends, :Description)
-            """, prepared_packages)
+            """,
+                prepared_packages,
+            )
 
     def _download_with_progress(self, url):
         response = requests.get(url, stream=True)
-        total_size_in_bytes = int(response.headers.get('content-length', 0))
+        total_size_in_bytes = int(response.headers.get("content-length", 0))
         block_size = 1024
-        progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+        progress_bar = tqdm(total=total_size_in_bytes, unit="iB", unit_scale=True)
         content = BytesIO()
         for data in response.iter_content(block_size):
             progress_bar.update(len(data))
@@ -116,15 +131,15 @@ class DebianPackageImporter:
     def download_and_parse_packages_file(self, url):
         content = self._download_with_progress(url)
         packages = []
-        with gzip.open(content, 'rt') as f:
+        with gzip.open(content, "rt") as f:
             package = {}
             for line in f:
-                if line == '\n':
+                if line == "\n":
                     if package:
                         packages.append(package)
                         package = {}
                     continue
-                key, value = line.split(':', 1)
+                key, value = line.split(":", 1)
                 package[key.strip()] = value.strip()
             if package:
                 packages.append(package)
@@ -142,6 +157,7 @@ class DebianPackageImporter:
     def close(self):
         self.conn.close()
 
+
 class DebianPackageInfo:
     def __init__(self, db_path):
         self.db_path = db_path
@@ -152,7 +168,9 @@ class DebianPackageInfo:
     def _fetch_table_names(self):
         cursor = self.conn.cursor()
         # TODO переделать, чтобы явно сличать структуру
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name != ?", (Metadata,))
+        cursor.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name != ?", (Metadata,)
+        )
         rows = cursor.fetchall()
         self.tables = [row[0] for row in rows]
 
@@ -173,7 +191,9 @@ class DebianPackageInfo:
                     cursor.execute(f"SELECT version FROM {table_name} WHERE package_name = ?", (dep.package,))
                     result = cursor.fetchone()
                     if not result or not dep.is_satisfied_by(result[0]):
-                        errors.append(f"Зависимость для пакета {dep.package} не удовлетворена: {result[0]}{dep.operator}{dep.version}")
+                        errors.append(
+                            f"Зависимость для пакета {dep.package} не удовлетворена: {result[0]}{dep.operator}{dep.version}"
+                        )
 
         return errors
 
@@ -193,8 +213,11 @@ class DebianPackageInfo:
 
         return all_errors
 
+
 # Example usage
 # TODO add apt sources parser
 if __name__ == "__main__":
-    importer = DebianPackageImporter('debian_packages.db', "http://deb.debian.org/debian/dists/sid/main/binary-amd64/Packages.gz")
+    importer = DebianPackageImporter(
+        "debian_packages.db", "http://deb.debian.org/debian/dists/sid/main/binary-amd64/Packages.gz"
+    )
     importer.close()
