@@ -1,6 +1,6 @@
 import argparse
 
-from .executor import Executor
+from compatigraph.executor import Executor
 
 
 class CLI:
@@ -15,5 +15,5 @@ class CLI:
         if args.verbose:
             print("Verbose mode activated.")
         runner = Executor(args.input)
-        # TODO Add a print or show function.
-        runner.solve()
+        results = runner.solve()
+        runner.print_results(results)
