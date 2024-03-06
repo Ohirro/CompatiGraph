@@ -182,18 +182,18 @@ class DebianPackageInfo:
         :param dependencies: Словарь зависимостей для проверки.
         :return: Список ошибок.
         """
-        errors = []
+        errors = {}
         cursor = self.conn.cursor()
 
         for package, deps in dependencies.items():
             for operator, dep_list in deps.items():
                 for dep in dep_list:
-                    cursor.execute(f"SELECT version FROM {table_name} WHERE package_name = ?", (dep.package,))
+                    cursor.execute(f"SELECT version FROM {table_name} WHERE package_name = ?", (package,))
                     result = cursor.fetchone()
                     if not result or not dep.is_satisfied_by(result[0]):
-                        errors.append(
-                            f"Зависимость для пакета {dep.package} не удовлетворена: {result[0]}{dep.operator}{dep.version}"
-                        )
+                        errors[package] =\
+                            f"{package} dependency unsatisfied: {result[0]}{dep.operator}{dep.version}"
+
 
         return errors
 
@@ -205,11 +205,9 @@ class DebianPackageInfo:
         :return: Словарь ошибок по таблицам.
         """
         all_errors = {}
-
         for table in self.tables:
             errors = self.check_dependencies_in_table(table, dependencies)
-            if errors:
-                all_errors[table] = errors
+            all_errors[table] = errors
 
         return all_errors
 

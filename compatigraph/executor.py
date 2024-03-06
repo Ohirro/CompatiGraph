@@ -3,7 +3,7 @@ from typing import Union
 
 from compatigraph.apt_worker import AptExecutor, DepHandler
 from compatigraph.logic import LogicSolver
-from compatigraph.packages_db import DebianPackageInfo
+from compatigraph.packages_db import DebianPackageInfo, DebianPackageImporter
 
 
 class Executor:
@@ -14,6 +14,7 @@ class Executor:
         self._dep_handel = None
         self._apt_executor = None
         self._deps = None
+        self._db_init = None
         self._db_info = None
 
     @property
@@ -46,6 +47,14 @@ class Executor:
             self._db_info = DebianPackageInfo("debian_packages.db")
         return self._db_info
 
+    def db_init(self):
+        if self._db_init is None:
+            self._db_init = DebianPackageImporter(
+                "debian_packages.db", "http://deb.debian.org/debian/dists/stable/main/binary-amd64/Packages.gz"
+            )
+            self._db_init.close()
+        return self._db_init
+
     def solve(self):
         """
         Solves the dependencies, checks them against all tables in the database,
@@ -68,11 +77,14 @@ class Executor:
 
         # Perform the database check as part of the solving process
         confines_map = {key: value['confines'] for key, value in results.items() if value['status'] == 'OK'}
+        self.db_init()
         db_check_results = self.db_info.check_dependencies_in_all_tables(confines_map)
         
         # Update results with database check information
         for key in confines_map.keys():
-            results[key]['db_check'] = db_check_results.get(key, 'Not found')
+            for db, db_data in db_check_results.items():
+                results[key][db] = db_data.get(key, 'OK')
+
 
         return results
     def print_results(self, results):
@@ -82,13 +94,43 @@ class Executor:
         Args:
             results: The results dictionary from the solve function.
         """
-        header = ["Dependency", "Status", "Confines", "DB Check"]
-        print(f"{header[0]:<30} {header[1]:<10} {header[2]:<50} {header[3]:<20}")
-        print("-" * 110)  # Adjust the number based on the total width of the table
+        db_names = set()
+        for key, value in results.items():
+            for db in value.keys():
+                if db != 'status' and db != 'confines':
+                    db_names.add(db)
+
+        db_names = sorted(list(db_names))  # Сортировка имен баз данных для последовательного отображения
+
+        # Определяем ширину колонки на основе самого длинного имени базы данных
+        max_db_name_length = max([len(db) for db in db_names]) + 5  # Добавляем небольшой отступ
+
+        header = ["Dependency", "Status", "Confines"] + db_names
+        header_format = "{:<30} {:<10} {:<50} " + " ".join([f"{{:<{max_db_name_length}}}" for _ in db_names])
+        print(header_format.format(*header))
+
+        print("-" * (90 + max_db_name_length * len(db_names)))
 
         for key, value in results.items():
             status = str(value['status'])
-            # Ensure confines and db_check are converted to string properly
-            confines = str(value.get('confines', 'N/A')) if isinstance(value.get('confines'), (str, int)) else 'Complex Data'
-            db_check = str(value.get('db_check', 'N/A')) if isinstance(value.get('db_check'), (str, int)) else 'Complex Data'
-            print(f"{key:<30} {status:<10} {confines:<50} {db_check:<20}")
+            confines = self.format_confines(value.get('confines'))
+
+            # Сбор данных проверки для каждой базы данных
+            db_checks = [str(value.get(db_name, 'N/A')) for db_name in db_names]
+
+            row_format = "{:<30} {:<10} {:<50} " + " ".join([f"{{:<{max_db_name_length}}}" for _ in db_names])
+            print(row_format.format(key, status, confines, *db_checks))
+
+    @staticmethod
+    def format_confines(confines):
+        if not confines or not isinstance(confines, dict):
+            return 'N/A'
+
+        constraints = []
+        for operator, dependencies in confines.items():
+            for dep in dependencies:
+                constraints.append(f"{operator} {dep.version}")
+
+        return ', '.join(constraints) if constraints else 'None'
+
+
