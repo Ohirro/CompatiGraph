@@ -6,14 +6,33 @@ from compatigraph.executor import Executor
 class CLI:
     def __init__(self):
         self.parser = argparse.ArgumentParser(description="Deps analizer")
-        self.parser.add_argument("input", help="Input filename or a package.")
-        self.parser.add_argument("-o", "--output", help="Output file path", default="output.csv")
-        self.parser.add_argument("-v", "--verbose", action="store_true", help="Verbose mode")
+        self.parser.add_argument(
+            "input",
+            help="Input filename or a package.",
+        )
+        self.parser.add_argument(
+            "-s",
+            "--source",
+            help="which source to use, could be a link or source.",
+            default="/etc/apt/",
+        )
+        self.parser.add_argument(
+            "-o",
+            "--output",
+            help="Output file path",
+            default="output.csv",
+        )
+        self.parser.add_argument(
+            "-v",
+            "--verbose",
+            action="store_true",
+            help="Verbose mode",
+        )
 
     def run(self):
         args = self.parser.parse_args()
         if args.verbose:
             print("Verbose mode activated.")
-        runner = Executor(args.input)
+        runner = Executor(package=args.input, source=args.source)
         results = runner.solve()
         runner.print_results(results)
