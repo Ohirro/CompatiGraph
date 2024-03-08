@@ -191,9 +191,7 @@ class DebianPackageInfo:
                     cursor.execute(f"SELECT version FROM {table_name} WHERE package_name = ?", (package,))
                     result = cursor.fetchone()
                     if not result or not dep.is_satisfied_by(result[0]):
-                        errors[package] =\
-                            f"{package} dependency unsatisfied: {result[0]}{dep.operator}{dep.version}"
-
+                        errors[package] = f"{package} dependency unsatisfied: {result[0]}{dep.operator}{dep.version}"
 
         return errors
 
