@@ -17,9 +17,9 @@ class DebianPackageImporter:
         self.db_path = db_path
         self.conn = sqlite3.connect(db_path)
         for url in debian_urls:
-            need_reload = self._check_db_expiry() or force_reload or self._check_url_change(url)
             self.table_name = self._generate_table_name(url)
             self._setup_database()
+            need_reload = self._check_db_expiry() or force_reload or self._check_url_change(url)
             if need_reload:
                 self._clear_database()
                 self._setup_database()
@@ -191,6 +191,7 @@ class DebianPackageInfo:
         for package, deps in dependencies.items():
             for operator, dep_list in deps.items():
                 for dep in dep_list:
+                    breakpoint()
                     cursor.execute(f"SELECT version FROM {table_name} WHERE package_name = ?", (package,))
                     result = cursor.fetchone()
                     if not result or not dep.is_satisfied_by(result[0]):
