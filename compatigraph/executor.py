@@ -16,7 +16,8 @@ class Executor:
     ) -> None:
         self._package = package
         self._verbose = verbose
-        self.source = source
+        if source is None:
+            self.source = Path("/etc/apt")
         self._solver_meta = None
         self._dep_handel = None
         self._apt_executor = None
@@ -56,11 +57,8 @@ class Executor:
 
     @property
     def sources_links(self):
-        # TODO this is bad, redo.
-        links = []
-        if self.source:
-            sh = SourceHandler(self.source)
-            links = sh.system_links()
+        sh = SourceHandler(self.source)
+        links = sh.system_links()
         return links
 
     def db_init(self):

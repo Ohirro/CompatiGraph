@@ -11,13 +11,14 @@ def _find_all_sources(path: Any):
 
 @_find_all_sources.register
 def _(path: str) -> Iterator[Path]:
-    return list(Path(path).rglob("*.sources"))
+    sources_files = list(Path(path).rglob("*.sources"))
+    return sources_files if sources_files else list(Path(path).rglob("*.list"))
 
 
 @_find_all_sources.register
 def _(path: Path) -> Iterator[Path]:
-    return list(path.rglob("*.sources"))
-
+    sources_files = list(path.rglob("*.sources"))
+    return sources_files if sources_files else list(path.rglob("*.list"))
 
 class SourceHandler:
     def __init__(self, sources_location: Union[str, Path] = None) -> None:
@@ -47,7 +48,6 @@ class SourceHandler:
 
     def system_links(self):
         res = {}
-        print(_find_all_sources(self.sources_location))
         for sources in _find_all_sources(self.sources_location):
             res.update(self.parse_sources_list(sources))
         links = []
