@@ -1,0 +1,26 @@
+{
+    "name": "Debian 11 Dev Container",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": {
+            "USERNAME": "ilyakuksenok",
+            "USER_UID": "1000",
+            "USER_GID": "1000"
+        }
+    },
+    "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "ms-python.python",
+        "visualstudioexptteam.vscodeintellicode",
+        "github.vscode-pull-request-github"
+    ],
+    "forwardPorts": [
+        3000
+    ],
+    "postCreateCommand": "echo 'Container ready!'",
+    "remoteUser": "${localEnv:USERNAME}",
+    "mounts": [
+        "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/ilyakuksenok/.ssh,type=bind,consistency=cached"
+    ]
+}

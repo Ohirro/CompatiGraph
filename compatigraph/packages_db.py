@@ -17,9 +17,9 @@ class DebianPackageImporter:
         self.db_path = db_path
         self.conn = sqlite3.connect(db_path)
         for url in debian_urls:
+            need_reload = self._check_db_expiry() or force_reload or self._check_url_change(url)
             self.table_name = self._generate_table_name(url)
             self._setup_database()
-            need_reload = self._check_db_expiry() or force_reload or self._check_url_change(url)
             if need_reload:
                 self._clear_database()
                 self._setup_database()

@@ -16,6 +16,7 @@ class Executor:
     ) -> None:
         self._package = package
         self._verbose = verbose
+        self.source = source
         if source is None:
             self.source = Path("/etc/apt")
         self._solver_meta = None
