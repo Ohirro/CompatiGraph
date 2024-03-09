@@ -11,18 +11,19 @@ def _find_all_sources(path: Any):
 
 @_find_all_sources.register
 def _(path: str) -> Iterator[Path]:
-    return Path(path).rglob("*.list")
+    return list(Path(path).rglob("*.sources"))
 
 
 @_find_all_sources.register
 def _(path: Path) -> Iterator[Path]:
-    return path.rglob("*.list")
+    return list(path.rglob("*.sources"))
 
 
 class SourceHandler:
-    def __init__(self, sources_location: Union[str, Path]) -> None:
+    def __init__(self, sources_location: Union[str, Path] = None) -> None:
         self.sources_location = sources_location
-
+        if sources_location is None:
+            self.sources_location = Path("/etc/apt")
     @staticmethod
     def parse_sources_list(file_path: Path):
         repositories = {}
@@ -37,14 +38,16 @@ class SourceHandler:
                         if "updates" in release:
                             continue
                         repositories[release] = (repository_url, component)
+                        print(repository_url, component)
         return repositories
 
     def make_packages_url(self, base_url: str, release: str, architecture: str = "amd64"):
         packages_url = f"{base_url}/dists/{release}/main/binary-{architecture}/Packages.gz"
         return packages_url
 
-    def get_the_links(self):
+    def system_links(self):
         res = {}
+        print(_find_all_sources(self.sources_location))
         for sources in _find_all_sources(self.sources_location):
             res.update(self.parse_sources_list(sources))
         links = []
