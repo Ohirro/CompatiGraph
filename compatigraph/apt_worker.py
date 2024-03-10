@@ -32,7 +32,7 @@ class Dependency:
         elif self.operator == "<=":
             return other_version <= self.version
         elif self.operator == "any":
-            return True
+            return other_version is not None
         else:
             raise ValueError(f"Неизвестный оператор: {self.operator}")
 

@@ -20,7 +20,7 @@ class DebianPackageImporter:
         for url in debian_urls:
             self.table_name = self._generate_table_name(url)
             self._setup_database()
-            need_reload = self._check_db_expiry() or force_reload or self._check_url_change(url)
+            need_reload = self._check_db_expiry() or force_reload or self._check_url_change()
             if need_reload:
                 self._clear_database()
                 self._setup_database()
@@ -60,21 +60,21 @@ class DebianPackageImporter:
         )
         self.conn.commit()
 
-    def _update_metadata_after_insert(self, url: str = None):
+    def _update_metadata_after_insert(self):
         cursor = self.conn.cursor()
-        if cursor.execute("SELECT COUNT(*) FROM db_metadata").fetchone()[0] == 0:
-            cursor.execute("INSERT INTO db_metadata (created_at, url) VALUES (?, ?)", (datetime.now(), url))
+        if cursor.execute(f"SELECT COUNT(*) FROM db_metadata where url = '{self.table_name}'").fetchone()[0] == 0:
+            cursor.execute("INSERT INTO db_metadata (created_at, url) VALUES (?, ?)", (datetime.now(), self.table_name))
         else:
             cursor.execute(
-                "UPDATE db_metadata SET created_at = ?, url = ? WHERE id = (SELECT MAX(id) FROM db_metadata)",
-                (datetime.now(), url),
+                "UPDATE db_metadata SET created_at = ?, url = ? WHERE url = '{self.table_name}'",
+                (datetime.now(), self.table_name),
             )
         self.conn.commit()
 
     def _clear_database(self):
         cursor = self.conn.cursor()
         cursor.execute(f"DELETE FROM {self.table_name}")
-        cursor.execute("DELETE FROM db_metadata")
+        cursor.execute(f"DELETE FROM db_metadata where url = '{self.table_name}'")
         self.conn.commit()
 
     def _check_db_expiry(self):
@@ -86,11 +86,11 @@ class DebianPackageImporter:
             return datetime.now() - created_at > timedelta(minutes=15)
         return False
 
-    def _check_url_change(self, url: str = None):
+    def _check_url_change(self):
         cursor = self.conn.cursor()
-        cursor.execute("SELECT url FROM db_metadata ORDER BY id DESC LIMIT 1")
+        cursor.execute(f"SELECT url FROM db_metadata WHERE url = '{self.table_name}'")
         result = cursor.fetchone()
-        if not result or result[0] != url:
+        if not result:
             return True
         return False
 
@@ -168,7 +168,7 @@ class DebianPackageImporter:
         with tqdm(total=len(packages), desc="Inserting packages", unit="pkg") as progress_bar:
             self._bulk_insert_packages(packages)
             progress_bar.update(len(packages))
-        self._update_metadata_after_insert(url)
+        self._update_metadata_after_insert()
 
     def force_reload(self, url: str = None):
         self._clear_database()
@@ -211,8 +211,14 @@ class DebianPackageInfo:
                 for dep in dep_list:
                     cursor.execute(f"SELECT version FROM {table_name} WHERE package_name = ?", (package,))
                     result = cursor.fetchone()
-                    if not result or not dep.is_satisfied_by(result[0]):
-                        errors[package] = f"{package} dependency unsatisfied: {result[0]}{dep.operator}{dep.version}"
+                    err_str = None
+                    if not result:
+                        err_str = f"not found {package} need {dep.operator} {dep.version}"
+                    elif not dep.is_satisfied_by(result[0]):
+                        err_str = f"{package} dependency unsatisfied: {result[0]}{dep.operator}{dep.version}"
+                    if err_str:
+                        errors[package] = errors.get(package, [])
+                        errors[package].append(err_str)
 
         return errors
 

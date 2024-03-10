@@ -128,4 +128,7 @@ class LogicSolver:
         elif less_or_equals:
             strictest_conditions["<="] = [Dependency("<=", less_or_equals[-1].version, less_or_equals[-1].package)]
 
+        if not strictest_conditions:
+            return {'any': [Dependency("any", "version", None)]}
+
         return strictest_conditions

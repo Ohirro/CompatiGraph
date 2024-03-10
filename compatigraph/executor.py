@@ -139,7 +139,7 @@ class Executor:
     @staticmethod
     def format_confines(confines):
         if not confines or not isinstance(confines, dict):
-            return "N/A"
+            return "Any"
 
         constraints = []
         for operator, dependencies in confines.items():
