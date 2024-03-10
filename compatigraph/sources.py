@@ -39,8 +39,17 @@ class SourceHandler:
     def parse_sources_list(file_path: Path) -> Dict[str, Tuple[str, str]]:
         repositories: Dict[str, Tuple[str, str]] = {}
         if file_path.suffix == ".list":
-            # Existing logic for .list files
-            pass
+            with open(file_path, "r") as file:
+                for line in file:
+                    if line.strip() and not line.strip().startswith("#"):
+                        match = re.match(r"deb\s+(\S+)\s+(\S+)\s+(\w+)\s*", line.strip())
+                        if match:
+                            repository_url = match.group(1)
+                            release = match.group(2)
+                            component = match.group(3)
+                            if "updates" in release:
+                                continue
+                            repositories[release] = (repository_url, component)
         elif file_path.suffix == ".sources":
             with open(file_path, "r") as file:
                 repository_url = None
