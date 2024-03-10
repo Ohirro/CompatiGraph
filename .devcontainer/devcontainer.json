@@ -1,5 +1,5 @@
 {
-    "name": "Debian 11 Dev Container",
+    "name": "Debian 12 Dev Container",
     "build": {
         "dockerfile": "Dockerfile",
         "args": {
