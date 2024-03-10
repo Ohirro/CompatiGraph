@@ -1,5 +1,5 @@
 # Use Debian 11 (Bullseye) as the base image
-FROM debian:bullseye
+FROM debian:bookworm
 
 # Avoid warnings by switching to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive

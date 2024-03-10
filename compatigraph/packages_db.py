@@ -1,5 +1,6 @@
 import gzip
 import re
+import lzma
 import sqlite3
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -134,18 +135,35 @@ class DebianPackageImporter:
         # TODO to think about simplification
         content = self._download_with_progress(url)
         packages = []
-        with gzip.open(content, "rt") as f:
-            package = {}
-            for line in f:
-                if line == "\n":
-                    if package:
-                        packages.append(package)
-                        package = {}
-                    continue
-                key, value = line.split(":", 1)
-                package[key.strip()] = value.strip()
-            if package:
-                packages.append(package)
+
+        if url.endswith('.gz'):
+            with gzip.open(content, "rt") as f:
+                package = {}
+                for line in f:
+                    if line == "\n":
+                        if package:
+                            packages.append(package)
+                            package = {}
+                        continue
+                    key, value = line.split(":", 1)
+                    package[key.strip()] = value.strip()
+                if package:
+                    packages.append(package)
+        elif url.endswith('.xz'):
+            with lzma.open(content, "rt") as f:
+                package = {}
+                for line in f:
+                    if line == "\n":
+                        if package:
+                            packages.append(package)
+                            package = {}
+                        continue
+                    key, value = line.split(":", 1)
+                    package[key.strip()] = value.strip()
+                if package:
+                    packages.append(package)
+        else:
+            raise ValueError("Unsupported file format")
 
         with tqdm(total=len(packages), desc="Inserting packages", unit="pkg") as progress_bar:
             self._bulk_insert_packages(packages)
@@ -191,7 +209,6 @@ class DebianPackageInfo:
         for package, deps in dependencies.items():
             for operator, dep_list in deps.items():
                 for dep in dep_list:
-                    breakpoint()
                     cursor.execute(f"SELECT version FROM {table_name} WHERE package_name = ?", (package,))
                     result = cursor.fetchone()
                     if not result or not dep.is_satisfied_by(result[0]):
