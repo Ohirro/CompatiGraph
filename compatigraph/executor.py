@@ -4,12 +4,21 @@ from typing import Union
 from compatigraph.apt_worker import AptExecutor, DepHandler
 from compatigraph.logic import LogicSolver
 from compatigraph.packages_db import DebianPackageInfo, DebianPackageImporter
+from compatigraph.sources import SourceHandler
 
 
 class Executor:
-    def __init__(self, package: Union[str, Path] = None, verbose: bool = None) -> None:
+    def __init__(
+        self,
+        package: Union[str, Path] = None,
+        verbose: bool = None,
+        source: Union[str, Path] = None,
+    ) -> None:
         self._package = package
         self._verbose = verbose
+        self.source = source
+        if source is None:
+            self.source = Path("/etc/apt")
         self._solver_meta = None
         self._dep_handel = None
         self._apt_executor = None
@@ -47,10 +56,16 @@ class Executor:
             self._db_info = DebianPackageInfo("debian_packages.db")
         return self._db_info
 
+    @property
+    def sources_links(self):
+        sh = SourceHandler(self.source)
+        links = sh.system_links()
+        return links
+
     def db_init(self):
         if self._db_init is None:
             self._db_init = DebianPackageImporter(
-                "debian_packages.db", "http://deb.debian.org/debian/dists/stable/main/binary-amd64/Packages.gz"
+                "debian_packages.db", debian_urls=self.sources_links
             )
             self._db_init.close()
         return self._db_init
@@ -71,22 +86,22 @@ class Executor:
             analysis_result = self.solver_meta.analyze_dependencies(value)
             if analysis_result:
                 confines = self.solver_meta.find_strictest_conditions(value)
-                results[key] = {'status': 'OK', 'confines': confines}
+                results[key] = {"status": "OK", "confines": confines}
             else:
-                results[key] = {'status': 'FAIL', 'reason': analysis_result[1]}
+                results[key] = {"status": "FAIL", "reason": analysis_result[1]}
 
         # Perform the database check as part of the solving process
-        confines_map = {key: value['confines'] for key, value in results.items() if value['status'] == 'OK'}
+        confines_map = {key: value["confines"] for key, value in results.items() if value["status"] == "OK"}
         self.db_init()
         db_check_results = self.db_info.check_dependencies_in_all_tables(confines_map)
-        
+
         # Update results with database check information
         for key in confines_map.keys():
             for db, db_data in db_check_results.items():
-                results[key][db] = db_data.get(key, 'OK')
-
+                results[key][db] = db_data.get(key, "OK")
 
         return results
+
     def print_results(self, results):
         """
         Prints the results of the dependency analysis, including the database checks, in a table format.
@@ -97,7 +112,7 @@ class Executor:
         db_names = set()
         for key, value in results.items():
             for db in value.keys():
-                if db != 'status' and db != 'confines':
+                if db != "status" and db != "confines":
                     db_names.add(db)
 
         db_names = sorted(list(db_names))  # Сортировка имен баз данных для последовательного отображения
@@ -112,11 +127,11 @@ class Executor:
         print("-" * (90 + max_db_name_length * len(db_names)))
 
         for key, value in results.items():
-            status = str(value['status'])
-            confines = self.format_confines(value.get('confines'))
+            status = str(value["status"])
+            confines = self.format_confines(value.get("confines"))
 
             # Сбор данных проверки для каждой базы данных
-            db_checks = [str(value.get(db_name, 'N/A')) for db_name in db_names]
+            db_checks = [str(value.get(db_name, "N/A")) for db_name in db_names]
 
             row_format = "{:<30} {:<10} {:<50} " + " ".join([f"{{:<{max_db_name_length}}}" for _ in db_names])
             print(row_format.format(key, status, confines, *db_checks))
@@ -124,13 +139,11 @@ class Executor:
     @staticmethod
     def format_confines(confines):
         if not confines or not isinstance(confines, dict):
-            return 'N/A'
+            return "N/A"
 
         constraints = []
         for operator, dependencies in confines.items():
             for dep in dependencies:
                 constraints.append(f"{operator} {dep.version}")
 
-        return ', '.join(constraints) if constraints else 'None'
-
-
+        return ", ".join(constraints) if constraints else "None"

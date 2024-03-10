@@ -3,6 +3,8 @@ import re
 import sqlite3
 from datetime import datetime, timedelta
 from io import BytesIO
+from typing import List, Union
+from pathlib import Path
 
 import requests
 from tqdm import tqdm
@@ -11,19 +13,19 @@ Metadata = "db_metadata"
 
 
 class DebianPackageImporter:
-    def __init__(self, db_path, debian_url, force_reload=False):
+    def __init__(self, db_path: Union[str, Path], debian_urls: List[str] = None, force_reload=False):
         self.db_path = db_path
-        self.url = debian_url
-        self.table_name = self._generate_table_name(self.url)
-        self.conn = sqlite3.connect(self.db_path)
-        self._setup_database()
-        need_reload = self._check_db_expiry() or force_reload or self._check_url_change()
-        if need_reload:
-            self._clear_database()
+        self.conn = sqlite3.connect(db_path)
+        for url in debian_urls:
+            self.table_name = self._generate_table_name(url)
             self._setup_database()
-            self.download_and_parse_packages_file(self.url)
+            need_reload = self._check_db_expiry() or force_reload or self._check_url_change(url)
+            if need_reload:
+                self._clear_database()
+                self._setup_database()
+                self.download_and_parse_packages_file(url)
 
-    def _generate_table_name(self, url):
+    def _generate_table_name(self, url: str = None):
         # Удаляем протокол и заменяем недопустимые символы на подчеркивания
         name = re.sub(r"https?://", "", url)
         name = re.sub(r"[^a-zA-Z0-9_]", "_", name)
@@ -57,14 +59,14 @@ class DebianPackageImporter:
         )
         self.conn.commit()
 
-    def _update_metadata_after_insert(self):
+    def _update_metadata_after_insert(self, url: str = None):
         cursor = self.conn.cursor()
         if cursor.execute("SELECT COUNT(*) FROM db_metadata").fetchone()[0] == 0:
-            cursor.execute("INSERT INTO db_metadata (created_at, url) VALUES (?, ?)", (datetime.now(), self.url))
+            cursor.execute("INSERT INTO db_metadata (created_at, url) VALUES (?, ?)", (datetime.now(), url))
         else:
             cursor.execute(
                 "UPDATE db_metadata SET created_at = ?, url = ? WHERE id = (SELECT MAX(id) FROM db_metadata)",
-                (datetime.now(), self.url),
+                (datetime.now(), url),
             )
         self.conn.commit()
 
@@ -83,11 +85,11 @@ class DebianPackageImporter:
             return datetime.now() - created_at > timedelta(minutes=15)
         return False
 
-    def _check_url_change(self):
+    def _check_url_change(self, url: str = None):
         cursor = self.conn.cursor()
         cursor.execute("SELECT url FROM db_metadata ORDER BY id DESC LIMIT 1")
         result = cursor.fetchone()
-        if not result or result[0] != self.url:
+        if not result or result[0] != url:
             return True
         return False
 
@@ -113,7 +115,7 @@ class DebianPackageImporter:
                 prepared_packages,
             )
 
-    def _download_with_progress(self, url):
+    def _download_with_progress(self, url: str = None):
         response = requests.get(url, stream=True)
         total_size_in_bytes = int(response.headers.get("content-length", 0))
         block_size = 1024
@@ -128,7 +130,8 @@ class DebianPackageImporter:
         content.seek(0)
         return content
 
-    def download_and_parse_packages_file(self, url):
+    def download_and_parse_packages_file(self, url: str = None):
+        # TODO to think about simplification
         content = self._download_with_progress(url)
         packages = []
         with gzip.open(content, "rt") as f:
@@ -147,19 +150,19 @@ class DebianPackageImporter:
         with tqdm(total=len(packages), desc="Inserting packages", unit="pkg") as progress_bar:
             self._bulk_insert_packages(packages)
             progress_bar.update(len(packages))
-        self._update_metadata_after_insert()
+        self._update_metadata_after_insert(url)
 
-    def force_reload(self):
+    def force_reload(self, url: str = None):
         self._clear_database()
         self._setup_database()
-        self.download_and_parse_packages_file(self.url)
+        self.download_and_parse_packages_file(url)
 
     def close(self):
         self.conn.close()
 
 
 class DebianPackageInfo:
-    def __init__(self, db_path):
+    def __init__(self, db_path: Union[str, Path] = None):
         self.db_path = db_path
         self.conn = sqlite3.connect(self.db_path)
         self.tables = []
@@ -188,12 +191,11 @@ class DebianPackageInfo:
         for package, deps in dependencies.items():
             for operator, dep_list in deps.items():
                 for dep in dep_list:
+                    breakpoint()
                     cursor.execute(f"SELECT version FROM {table_name} WHERE package_name = ?", (package,))
                     result = cursor.fetchone()
                     if not result or not dep.is_satisfied_by(result[0]):
-                        errors[package] =\
-                            f"{package} dependency unsatisfied: {result[0]}{dep.operator}{dep.version}"
-
+                        errors[package] = f"{package} dependency unsatisfied: {result[0]}{dep.operator}{dep.version}"
 
         return errors
 
@@ -210,12 +212,3 @@ class DebianPackageInfo:
             all_errors[table] = errors
 
         return all_errors
-
-
-# Example usage
-# TODO add apt sources parser
-if __name__ == "__main__":
-    importer = DebianPackageImporter(
-        "debian_packages.db", "http://deb.debian.org/debian/dists/sid/main/binary-amd64/Packages.gz"
-    )
-    importer.close()
