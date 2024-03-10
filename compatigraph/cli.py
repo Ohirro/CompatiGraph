@@ -1,4 +1,6 @@
 import argparse
+import sys
+from compatigraph.helper import find_the_pkg, UnknownPkgException
 
 from compatigraph.executor import Executor
 
@@ -32,7 +34,12 @@ class CLI:
     def run(self):
         args = self.parser.parse_args()
         if args.verbose:
-            print("Verbose mode activated.")
+            print("Verbose mode activated.")   
+        try:
+            find_the_pkg(args.input)
+        except UnknownPkgException as e:
+            sys.stderr.write(f"Error: {e.__class__.__name__}: {e}\n")
+            exit(0)
         runner = Executor(package=args.input, source=args.source)
         results = runner.solve()
         runner.print_results(results)
