@@ -67,16 +67,22 @@ class SourceHandler:
                         release = line.split(": ")[1]
                     elif line.startswith("Components:"):
                         components = line.split(": ")[1].split()
-                        for rel in release.split():
-                            repositories[repository_url] = (rel, components)
+                        repositories[repository_url] = (release.split(), components)
                         release = None
                         repository_url = None
+        print(repositories)
         return repositories
 
-    def make_packages_url(self, base_url: str, release: str, component: str, architecture: str = "amd64") -> str:
-        if is_url_accessible(f"{base_url}/dists/{release.replace(' ', '-')}/{component}/binary-{architecture}/Packages.xz"):
-            return f"{base_url}/dists/{release.replace(' ', '-')}/{component}/binary-{architecture}/Packages.xz"
-        return f"{base_url}/dists/{release.replace(' ', '-')}/{component}/binary-{architecture}/Packages.gz"
+    def make_packages_url(self, base_url: str, releases: list[str], components: list[str], architecture: str = "amd64") -> str:
+        links = []
+        for release in releases:
+            # for component in components:
+                component = "main"
+                if is_url_accessible(f"{base_url}/dists/{release.replace(' ', '-')}/{component}/binary-{architecture}/Packages.xz"):
+                    links.append(f"{base_url}/dists/{release.replace(' ', '-')}/{component}/binary-{architecture}/Packages.xz")
+                links.append(f"{base_url}/dists/{release.replace(' ', '-')}/{component}/binary-{architecture}/Packages.gz")
+        print(links)
+        return links
 
     def system_links(self) -> list[str]:
         res: dict[str, tuple[str, str]] = {}
@@ -84,6 +90,5 @@ class SourceHandler:
             res.update(self.parse_sources_list(sources))
         links: list[str] = []
         for base_url, meta in res.items():
-            for component in meta[1]:
-                links.append(self.make_packages_url(base_url, meta[0], component))
+            links = self.make_packages_url(base_url, meta[0], meta[1])
         return links

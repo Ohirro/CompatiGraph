@@ -13,16 +13,16 @@ Metadata = "db_metadata"
 
 
 class DebianPackageImporter:
-    def __init__(self, db_path: str | Path, debian_urls: list[str] = None, force_reload=False):
+    def __init__(self, db_path: str | Path, debian_urls: list[str] = None, force_reload=True):
         self.db_path = db_path
         self.conn = sqlite3.connect(db_path)
         for url in debian_urls:
             self.table_name = self._generate_table_name(url)
             self._setup_database()
             if self._check_db_expiry() or force_reload or self._check_url_change():
+                self.download_and_parse_packages_file(url)
                 self._clear_database()
                 self._setup_database()
-                self.download_and_parse_packages_file(url)
 
     def _generate_table_name(self, url: str = None):
         # Удаляем протокол и заменяем недопустимые символы на подчеркивания
