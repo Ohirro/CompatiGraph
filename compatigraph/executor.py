@@ -154,7 +154,7 @@ class Executor:
 
         db_names = sorted(list(db_names))
 
-        with open("dependency_analysis_results.csv", mode="w", newline="") as file:
+        with open("dependency_analysis_results.csv", mode="w", newline="", encoding="utf8") as file:
             writer = csv_writer(file)
 
             headers = ["Dependency", "Status", "Confines"] + db_names
