@@ -4,6 +4,7 @@ from compatigraph.apt_worker import AptExecutor, DepHandler
 from compatigraph.logic import LogicSolver
 from compatigraph.packages_db import DebianPackageInfo, DebianPackageImporter
 from compatigraph.sources import SourceHandler
+from csv import writer as csv_writer
 
 
 class Executor:
@@ -81,13 +82,11 @@ class Executor:
 
         for key, value in parsed_dependencies_detailed.items():
             # analysis_result = self.solver_meta.analyze_dependencies(value)
-            if self.solver_meta.analyze_dependencies(value):
+            if not (conflict := self.solver_meta.analyze_dependencies(value)):
                 confines = self.solver_meta.find_strictest_conditions(value)
                 results[key] = {"status": "OK", "confines": confines}
             else:
-                # results[key] = {"status": "FAIL", "reason": analysis_result[1]}
-                # TODO To rethink how fail reason must be handled.
-                results[key] = {"status": "FAIL", "reason": "Fail"}
+                results[key] = {"status": "FAIL", "reason": f"Fail {conflict}"}
 
         # Perform the database check as part of the solving process
         confines_map = {key: value["confines"] for key, value in results.items() if value["status"] == "OK"}
@@ -145,3 +144,25 @@ class Executor:
                 constraints.append(f"{operator} {dep.version}")
 
         return ", ".join(constraints) if constraints else "None"
+
+    def save_results_to_csv(self, results: dict[str, tuple[str, str]]):
+        db_names = set()
+        for key, value in results.items():
+            for db in value.keys():
+                if db not in ("status", "confines"):
+                    db_names.add(db)
+
+        db_names = sorted(list(db_names))
+
+        with open('dependency_analysis_results.csv', mode='w', newline='') as file:
+            writer = csv_writer(file)
+
+            headers = ["Dependency", "Status", "Confines"] + db_names
+            writer.writerow(headers)
+
+            for key, value in results.items():
+                status = str(value["status"])
+                confines = self.format_confines(value.get("confines"))
+                db_checks = [str(value.get(db_name, "N/A")) for db_name in db_names]
+                row = [key, status, confines] + db_checks
+                writer.writerow(row)

@@ -43,3 +43,4 @@ class CLI:
         runner = Executor(package=args.input, source=args.source)
         results = runner.solve()
         runner.print_results(results)
+        runner.save_results_to_csv(results)

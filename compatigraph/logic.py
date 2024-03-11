@@ -57,10 +57,10 @@ class LogicSolver:
 
         # Возвращаем все найденные конфликты
         if conflicts:
-            return False, conflicts
+            return conflicts
 
         # Все проверки пройдены, зависимости корректны
-        return True, None
+        return None
 
     @staticmethod
     def check_compatibility_with_equals(
