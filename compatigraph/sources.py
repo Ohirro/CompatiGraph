@@ -42,17 +42,31 @@ class SourceHandler:
             with open(file_path, "r") as file:
                 for line in file:
                     if line.strip() and not line.strip().startswith("#"):
+                        # Adjusted regex to handle complex bracketed sections and multiple components
                         match = re.match(
-                            r"deb\s*(?:\[\s*(?:(?:arch=\S+)\s*)?(?:signed-by=\S+\s*)?\])?\s*(\S+)\s+(\S+)\s+(\w+)\s*",
+                            r"deb\s*(?:\[\s*(.*?)\s*\])?\s*(\S+)\s+(\S+)\s+(.+)",
                             line.strip())
-                        # match = re.match(r"deb\s+(\S+)\s+(\S+)\s+(\w+)\s*", line.strip())
                         if match:
-                            repository_url = match.group(1)
-                            release = match.group(2)
-                            component = match.group(3)
+                            attributes = match.group(1)  # This captures everything within the brackets
+                            repository_url = match.group(2)
+                            release = match.group(3)
+                            components = match.group(4).split()  # Splits the components into a list
+                            
+                            # If "updates" is in the release, it's being skipped
                             if "updates" in release:
                                 continue
-                            repositories[release] = (repository_url, component)
+                            
+                            # Check if the release already exists, append components if so
+                            if release in repositories:
+                                # Ensure no duplicate components if the release already exists
+                                existing_components = repositories[release][1]
+                                for component in components:
+                                    if component not in existing_components:
+                                        existing_components.append(component)
+                                repositories[release] = (repository_url, existing_components, attributes)
+                            else:
+                                # Add new release entry
+                                repositories[release] = (repository_url, components, attributes)
         elif file_path.suffix == ".sources":
             with open(file_path, "r") as file:
                 repository_url = None
