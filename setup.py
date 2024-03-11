@@ -1,5 +1,9 @@
 from setuptools import setup, find_packages
 
+
+with open("README.md", "r", encoding="utf8") as file_io:
+    desc_long = file_io.read()
+
 setup(
     name="CompatiGraph",
     # TODO Parse it from tag
@@ -7,7 +11,7 @@ setup(
     author="Ilya Kuksenok and Darya Kolesova",
     author_email="kuksyenok.i.s@gmail.com, ohirro@gmail.com",
     description="A tool for analyzing dependencies and compatibility between software components.",
-    long_description=open("README.md").read(),
+    long_description=desc_long,
     long_description_content_type="text/markdown",
     url="https://github.com/Ohirro/CompatiGraph",
     packages=find_packages(),

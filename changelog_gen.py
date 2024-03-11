@@ -18,15 +18,15 @@ def get_git_log():
 
 def convert_to_debian_changelog(git_log):
     entries = git_log.split("\n")
-    with open("debian/changelog", "w+") as changelog:
+    with open("debian/changelog", "w+", encoding="utf8") as changelog:
         changelog.write(f"{package_name} ({version}) {distribution}; urgency={urgency}\n")
         for entry in entries:
             # Format each commit as a changelog entry. Adjust the formatting as needed.
             changelog.write(f"  * {entry}\n")
         changelog.write("\n")
-        changelog.write(f" -- Maintainer Ilya Kuksenok <kuksyenok.i.s@gmail.com>  {formatted_date}")
+        changelog.write(f"-- Maintainer Ilya Kuksenok <kuksyenok.i.s@gmail.com>  {formatted_date}")
 
 
 if __name__ == "__main__":
-    git_log = get_git_log()
-    convert_to_debian_changelog(git_log)
+    git_log_text = get_git_log()
+    convert_to_debian_changelog(git_log_text)
