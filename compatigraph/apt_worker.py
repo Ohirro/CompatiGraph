@@ -16,25 +16,24 @@ class Dependency:
         """
         Проверяет, удовлетворяет ли переданная версия условию зависимости.
 
-        :param other_version: Строка с версией для проверки.
+        :other_version: Строка с версией для проверки.
         :return: True, если условие удовлетворено, иначе False.
         """
         other_version = debian_support.Version(other_version)
 
         if self.operator == "=":
             return self.version == other_version
-        elif self.operator == ">>":
+        if self.operator == ">>":
             return other_version > self.version
-        elif self.operator == ">=":
+        if self.operator == ">=":
             return other_version >= self.version
-        elif self.operator == "<<":
+        if self.operator == "<<":
             return other_version < self.version
-        elif self.operator == "<=":
+        if self.operator == "<=":
             return other_version <= self.version
-        elif self.operator == "any":
+        if self.operator == "any":
             return other_version is not None
-        else:
-            raise ValueError(f"Неизвестный оператор: {self.operator}")
+        raise ValueError(f"Неизвестный оператор: {self.operator}")
 
 
 class AptExecutor:
@@ -59,8 +58,7 @@ class AptExecutor:
 
 
 class DepHandler:
-    def __init__(self) -> None:
-        ...
+    def __init__(self) -> None: ...
 
     @staticmethod
     def parse_dependencies_detailed(deps):
@@ -89,9 +87,9 @@ class DepHandler:
 
         # Сортировка не применяется к 'any', так как версия не указана
         for dep_name, operators in dependencies.items():
-            for operator, deps in operators.items():
+            for operator, deps_ in operators.items():
                 if operator != "any":
-                    deps.sort(
+                    deps_.sort(
                         key=lambda d: debian_support.Version(d.version) if d.version else debian_support.Version("0")
                     )
 

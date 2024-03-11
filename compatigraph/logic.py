@@ -4,8 +4,7 @@ from compatigraph.apt_worker import Dependency
 
 
 class LogicSolver:
-    def __init__(self) -> None:
-        ...
+    def __init__(self) -> None: ...
 
     def analyze_dependencies(self, dependencies):
         equals = dependencies.get("=", [])
@@ -99,8 +98,7 @@ class LogicSolver:
                 package = equals[0].package  # Предполагаем, что все объекты в equals относятся к одному пакету
                 strictest_conditions["="] = [Dependency("=", version, package)]
                 return strictest_conditions
-            else:
-                raise ValueError("Conflicting '=' conditions")
+            raise ValueError("Conflicting '=' conditions")
 
         # Выбор наиболее строгого условия для ">"
         if strictly_greater and greater_or_equals:
@@ -129,6 +127,6 @@ class LogicSolver:
             strictest_conditions["<="] = [Dependency("<=", less_or_equals[-1].version, less_or_equals[-1].package)]
 
         if not strictest_conditions:
-            return {'any': [Dependency("any", "version", None)]}
+            return {"any": [Dependency("any", "version", None)]}
 
         return strictest_conditions

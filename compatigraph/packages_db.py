@@ -4,7 +4,6 @@ import lzma
 import sqlite3
 from datetime import datetime, timedelta
 from io import BytesIO
-from typing import List, Union
 from pathlib import Path
 
 import requests
@@ -14,14 +13,13 @@ Metadata = "db_metadata"
 
 
 class DebianPackageImporter:
-    def __init__(self, db_path: Union[str, Path], debian_urls: List[str] = None, force_reload=False):
+    def __init__(self, db_path: str | Path, debian_urls: list[str] = None, force_reload=False):
         self.db_path = db_path
         self.conn = sqlite3.connect(db_path)
         for url in debian_urls:
             self.table_name = self._generate_table_name(url)
             self._setup_database()
-            need_reload = self._check_db_expiry() or force_reload or self._check_url_change()
-            if need_reload:
+            if self._check_db_expiry() or force_reload or self._check_url_change():
                 self._clear_database()
                 self._setup_database()
                 self.download_and_parse_packages_file(url)
@@ -80,8 +78,7 @@ class DebianPackageImporter:
     def _check_db_expiry(self):
         cursor = self.conn.cursor()
         cursor.execute("SELECT created_at FROM db_metadata ORDER BY id DESC LIMIT 1")
-        result = cursor.fetchone()
-        if result:
+        if result := cursor.fetchone():
             created_at = datetime.strptime(result[0], "%Y-%m-%d %H:%M:%S.%f")
             return datetime.now() - created_at > timedelta(minutes=15)
         return False
@@ -89,8 +86,7 @@ class DebianPackageImporter:
     def _check_url_change(self):
         cursor = self.conn.cursor()
         cursor.execute(f"SELECT url FROM db_metadata WHERE url = '{self.table_name}'")
-        result = cursor.fetchone()
-        if not result:
+        if not cursor.fetchone():
             return True
         return False
 
@@ -117,7 +113,7 @@ class DebianPackageImporter:
             )
 
     def _download_with_progress(self, url: str = None):
-        response = requests.get(url, stream=True)
+        response = requests.get(url, stream=True, timeout=90)
         total_size_in_bytes = int(response.headers.get("content-length", 0))
         block_size = 1024
         progress_bar = tqdm(total=total_size_in_bytes, unit="iB", unit_scale=True)
@@ -126,7 +122,7 @@ class DebianPackageImporter:
             progress_bar.update(len(data))
             content.write(data)
         progress_bar.close()
-        if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
+        if set([total_size_in_bytes, progress_bar.n]) == set([0]):
             print("ERROR, something went wrong")
         content.seek(0)
         return content
@@ -136,7 +132,7 @@ class DebianPackageImporter:
         content = self._download_with_progress(url)
         packages = []
 
-        if url.endswith('.gz'):
+        if url.endswith(".gz"):
             with gzip.open(content, "rt") as f:
                 package = {}
                 for line in f:
@@ -149,7 +145,7 @@ class DebianPackageImporter:
                     package[key.strip()] = value.strip()
                 if package:
                     packages.append(package)
-        elif url.endswith('.xz'):
+        elif url.endswith(".xz"):
             with lzma.open(content, "rt") as f:
                 package = {}
                 for line in f:
@@ -180,7 +176,7 @@ class DebianPackageImporter:
 
 
 class DebianPackageInfo:
-    def __init__(self, db_path: Union[str, Path] = None):
+    def __init__(self, db_path: str | Path = None):
         self.db_path = db_path
         self.conn = sqlite3.connect(self.db_path)
         self.tables = []
@@ -199,15 +195,15 @@ class DebianPackageInfo:
         """
         Проверяет зависимости в конкретной таблице.
 
-        :param table_name: Имя таблицы для проверки.
-        :param dependencies: Словарь зависимостей для проверки.
-        :return: Список ошибок.
+        table_name: Имя таблицы для проверки.
+        dependencies: Словарь зависимостей для проверки.
+        return: Список ошибок.
         """
         errors = {}
         cursor = self.conn.cursor()
 
         for package, deps in dependencies.items():
-            for operator, dep_list in deps.items():
+            for _, dep_list in deps.items():
                 for dep in dep_list:
                     cursor.execute(f"SELECT version FROM {table_name} WHERE package_name = ?", (package,))
                     result = cursor.fetchone()
@@ -226,8 +222,8 @@ class DebianPackageInfo:
         """
         Проверяет зависимости во всех таблицах.
 
-        :param dependencies: Словарь зависимостей для проверки.
-        :return: Словарь ошибок по таблицам.
+        dependencies: Словарь зависимостей для проверки.
+        return: Словарь ошибок по таблицам.
         """
         all_errors = {}
         for table in self.tables:

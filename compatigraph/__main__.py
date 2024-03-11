@@ -5,5 +5,6 @@ def main() -> None:
     getter_cli = CLI()
     getter_cli.run()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Union
 
 from compatigraph.apt_worker import AptExecutor, DepHandler
 from compatigraph.logic import LogicSolver
@@ -10,9 +9,9 @@ from compatigraph.sources import SourceHandler
 class Executor:
     def __init__(
         self,
-        package: Union[str, Path] = None,
+        package: str | Path = None,
         verbose: bool = None,
-        source: Union[str, Path] = None,
+        source: str | Path = None,
     ) -> None:
         self._package = package
         self._verbose = verbose
@@ -64,13 +63,11 @@ class Executor:
 
     def db_init(self):
         if self._db_init is None:
-            self._db_init = DebianPackageImporter(
-                "debian_packages.db", debian_urls=self.sources_links
-            )
+            self._db_init = DebianPackageImporter("debian_packages.db", debian_urls=self.sources_links)
             self._db_init.close()
         return self._db_init
 
-    def solve(self):
+    def solve(self) -> dict[str, tuple[str, str]]:
         """
         Solves the dependencies, checks them against all tables in the database,
         and prepares the results.
@@ -83,12 +80,14 @@ class Executor:
         results = {}
 
         for key, value in parsed_dependencies_detailed.items():
-            analysis_result = self.solver_meta.analyze_dependencies(value)
-            if analysis_result:
+            # analysis_result = self.solver_meta.analyze_dependencies(value)
+            if self.solver_meta.analyze_dependencies(value):
                 confines = self.solver_meta.find_strictest_conditions(value)
                 results[key] = {"status": "OK", "confines": confines}
             else:
-                results[key] = {"status": "FAIL", "reason": analysis_result[1]}
+                # results[key] = {"status": "FAIL", "reason": analysis_result[1]}
+                # TODO To rethink how fail reason must be handled.
+                results[key] = {"status": "FAIL", "reason": "Fail"}
 
         # Perform the database check as part of the solving process
         confines_map = {key: value["confines"] for key, value in results.items() if value["status"] == "OK"}
@@ -102,23 +101,22 @@ class Executor:
 
         return results
 
-    def print_results(self, results):
+    def print_results(self, results: dict[str, tuple[str, str]]):
         """
         Prints the results of the dependency analysis, including the database checks, in a table format.
 
-        Args:
-            results: The results dictionary from the solve function.
+        :results: dict[str, tuple[str, str]] The results dictionary from the solve function.
         """
         db_names = set()
         for key, value in results.items():
             for db in value.keys():
-                if db != "status" and db != "confines":
+                if db not in ("status", "confines"):
                     db_names.add(db)
 
         db_names = sorted(list(db_names))  # Сортировка имен баз данных для последовательного отображения
 
         # Определяем ширину колонки на основе самого длинного имени базы данных
-        max_db_name_length = max([len(db) for db in db_names]) + 5  # Добавляем небольшой отступ
+        max_db_name_length = max(len(db) for db in db_names) + 5  # Добавляем небольшой отступ
 
         header = ["Dependency", "Status", "Confines"] + db_names
         header_format = "{:<30} {:<10} {:<50} " + " ".join([f"{{:<{max_db_name_length}}}" for _ in db_names])

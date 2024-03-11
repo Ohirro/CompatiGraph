@@ -1,0 +1,31 @@
+digraph "imports_all" {
+rankdir=LR
+charset="utf-8"
+URL="." node[shape="box"]
+"compatigraph.apt_worker" [];
+"compatigraph.executor" [];
+"compatigraph.logic" [];
+"compatigraph.cli" [];
+"compatigraph.__main__" [];
+"compatigraph.executor" [];
+"compatigraph.helper" [];
+"compatigraph.logic" [];
+"compatigraph.packages_db" [];
+"compatigraph.sources" [];
+"debian.debian_support" [];
+"requests" [];
+"tqdm" [];
+"compatigraph.executor" -> "compatigraph.apt_worker" [];
+"compatigraph.logic" -> "compatigraph.apt_worker" [];
+"compatigraph.__main__" -> "compatigraph.cli" [];
+"compatigraph.cli" -> "compatigraph.executor" [];
+"compatigraph.cli" -> "compatigraph.helper" [];
+"compatigraph.executor" -> "compatigraph.logic" [];
+"compatigraph.executor" -> "compatigraph.packages_db" [];
+"compatigraph.executor" -> "compatigraph.sources" [];
+"compatigraph.apt_worker" -> "debian.debian_support" [];
+"compatigraph.logic" -> "debian.debian_support" [];
+"compatigraph.packages_db" -> "requests" [];
+"compatigraph.sources" -> "requests" [];
+"compatigraph.packages_db" -> "tqdm" [];
+}
