@@ -346,7 +346,8 @@ property-classes=abc.abstractproperty
 # Regex pattern to define which classes are considered mixins if ignore-mixin-
 # members is set to 'yes'
 mixin-class-rgx=.*MixIn
-
+# Disable the error E0611 for 'debian_support'
+disable=E0611
 # List of module names for which member attributes should not be checked
 # (useful for modules/projects where namespaces are manipulated during runtime
 # and thus existing member attributes cannot be deduced by static analysis). It
