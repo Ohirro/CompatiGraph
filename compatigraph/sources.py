@@ -36,50 +36,47 @@ class SourceHandler:
             self.sources_location = Path("/etc/apt")
 
     @staticmethod
-from pathlib import Path
-from typing import Dict, Tuple
-
-def parse_sources_list(file_path: Path) -> Dict[str, Tuple[str, list, str]]:
-    repositories: Dict[str, Tuple[str, list, str]] = {}
-    if file_path.suffix == ".list":
-        with open(file_path, "r") as file:
-            for line in file:
-                if line.strip() and not line.strip().startswith("#"):
-                    match = re.match(
-                        r"deb\s*(?:\[\s*(.*?)\s*\])?\s*(\S+)\s+(\S+)\s+(.+)",
-                        line.strip())
-                    if match:
-                        attributes = match.group(1)  # This captures everything within the brackets
-                        repository_url = match.group(2)
-                        release = match.group(3)
-                        components = match.group(4).split()  # Splits the components into a list
-                        
-                        if "updates" in release:
-                            continue
-                        
-                        # Simply store the components list as it is
-                        repositories[release] = (repository_url, components, attributes)
-    elif file_path.suffix == ".sources":
-        with open(file_path, "r") as file:
-            repository_url = None
-            release = None
-            component = None
-            for line in file:
-                line = line.strip()
-                if not line:
-                    continue
-                elif line.startswith('URIs:'):
-                    repository_url = line.split(': ')[1]
-                elif line.startswith('Suites:'):
-                    release = line.split(': ')[1]
-                elif line.startswith('Components:'):
-                    components = line.split(': ')[1].split()  # Split components into a list
-                    for rel in release.split():
-                        repositories[rel] = (repository_url, components)
-                    release = None
-                    repository_url = None
-                    component = None
-    return repositories
+    def parse_sources_list(file_path: Path) -> Dict[str, Tuple[str, list, str]]:
+        repositories: Dict[str, Tuple[str, list, str]] = {}
+        if file_path.suffix == ".list":
+            with open(file_path, "r") as file:
+                for line in file:
+                    if line.strip() and not line.strip().startswith("#"):
+                        match = re.match(
+                            r"deb\s*(?:\[\s*(.*?)\s*\])?\s*(\S+)\s+(\S+)\s+(.+)",
+                            line.strip())
+                        if match:
+                            attributes = match.group(1)  # This captures everything within the brackets
+                            repository_url = match.group(2)
+                            release = match.group(3)
+                            components = match.group(4).split()  # Splits the components into a list
+                            
+                            if "updates" in release:
+                                continue
+                            
+                            # Simply store the components list as it is
+                            repositories[release] = (repository_url, components, attributes)
+        elif file_path.suffix == ".sources":
+            with open(file_path, "r") as file:
+                repository_url = None
+                release = None
+                component = None
+                for line in file:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    elif line.startswith('URIs:'):
+                        repository_url = line.split(': ')[1]
+                    elif line.startswith('Suites:'):
+                        release = line.split(': ')[1]
+                    elif line.startswith('Components:'):
+                        components = line.split(': ')[1].split()  # Split components into a list
+                        for rel in release.split():
+                            repositories[rel] = (repository_url, components)
+                        release = None
+                        repository_url = None
+                        component = None
+        return repositories
 
     def make_packages_url(self, base_url: str, release: str, component: str, architecture: str = "amd64") -> str:
         if is_url_accessible(f"{base_url}/dists/{release.replace(' ', '-')}/main/binary-{architecture}/Packages.xz"):
