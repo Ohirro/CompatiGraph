@@ -42,7 +42,10 @@ class SourceHandler:
             with open(file_path, "r") as file:
                 for line in file:
                     if line.strip() and not line.strip().startswith("#"):
-                        match = re.match(r"deb\s+(\S+)\s+(\S+)\s+(\w+)\s*", line.strip())
+                        match = re.match(
+                            r"deb\s*(?:\[\s*(?:(?:arch=\S+)\s*)?(?:signed-by=\S+\s*)?\])?\s*(\S+)\s+(\S+)\s+(\w+)\s*",
+                            line.strip())
+                        # match = re.match(r"deb\s+(\S+)\s+(\S+)\s+(\w+)\s*", line.strip())
                         if match:
                             repository_url = match.group(1)
                             release = match.group(2)
