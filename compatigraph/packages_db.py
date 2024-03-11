@@ -1,6 +1,6 @@
 import gzip
-import re
 import lzma
+import re
 import sqlite3
 from datetime import datetime, timedelta
 from io import BytesIO

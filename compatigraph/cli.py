@@ -1,8 +1,8 @@
 import argparse
 import sys
-from compatigraph.helper import find_the_pkg, UnknownPkgException
 
 from compatigraph.executor import Executor
+from compatigraph.helper import UnknownPkgException, find_the_pkg
 
 
 class CLI:

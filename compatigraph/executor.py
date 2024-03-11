@@ -1,10 +1,10 @@
+from csv import writer as csv_writer
 from pathlib import Path
 
 from compatigraph.apt_worker import AptExecutor, DepHandler
 from compatigraph.logic import LogicSolver
-from compatigraph.packages_db import DebianPackageInfo, DebianPackageImporter
+from compatigraph.packages_db import DebianPackageImporter, DebianPackageInfo
 from compatigraph.sources import SourceHandler
-from csv import writer as csv_writer
 
 
 class Executor:
@@ -154,7 +154,7 @@ class Executor:
 
         db_names = sorted(list(db_names))
 
-        with open('dependency_analysis_results.csv', mode='w', newline='') as file:
+        with open("dependency_analysis_results.csv", mode="w", newline="") as file:
             writer = csv_writer(file)
 
             headers = ["Dependency", "Status", "Confines"] + db_names

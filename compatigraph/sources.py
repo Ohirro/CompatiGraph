@@ -1,8 +1,9 @@
 import re
-from pathlib import Path
 from collections.abc import Iterator
-from typing import Any
 from functools import singledispatch
+from pathlib import Path
+from typing import Any
+
 import requests
 
 
@@ -74,7 +75,9 @@ class SourceHandler:
         return repositories
 
     def make_packages_url(self, base_url: str, release: str, component: str, architecture: str = "amd64") -> str:
-        if is_url_accessible(f"{base_url}/dists/{release.replace(' ', '-')}/{component}/binary-{architecture}/Packages.xz"):
+        if is_url_accessible(
+            f"{base_url}/dists/{release.replace(' ', '-')}/{component}/binary-{architecture}/Packages.xz"
+        ):
             return f"{base_url}/dists/{release.replace(' ', '-')}/{component}/binary-{architecture}/Packages.xz"
         return f"{base_url}/dists/{release.replace(' ', '-')}/{component}/binary-{architecture}/Packages.gz"
 

@@ -1,6 +1,6 @@
-from subprocess import Popen
 import subprocess
 from contextlib import contextmanager
+from subprocess import Popen
 
 
 class UnknownPkgException(Exception): ...
