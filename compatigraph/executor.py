@@ -25,15 +25,14 @@ class Executor:
         self._dep_handler = None
         self._db_handler = None
         self._db_init = None
-        self.deps = None
+        self._deps = None
 
     @property
     def deps(self):
         if not self.deps:
-            dh = DepHandler()
             #TODO get line dependencies from DB
             line_from_db = ""
-            self.deps = dh.parse_dependencies_detailed(deps_line=line_from_db, package_name=self._package[0])
+            self._deps = ""
 
     @property
     def solver_meta(self):
@@ -79,7 +78,11 @@ class Executor:
             A dictionary mapping each dependency to its analysis result, strictest conditions,
             and database check result.
         """
-        # TODO 
+        # TODO
+        dh = DepHandler()
+        deps_line_from_db = ""
+        sparsed_dependencies_detailed= dh.parse_dependencies_detailed(deps_line=deps_line_from_db, package_name=self._package[0])
+
         parsed_dependencies_detailed = self.dep_handel.parse_dependencies_detailed()
         results = {}
 

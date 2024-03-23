@@ -41,8 +41,8 @@ class Dependency:
 
 
 class DepHandler:
-    def __init__(self) -> None: ...
-
+    def __init__(self) -> None:
+        ...
 
     def parse_dependencies_detailed(self, deps_line, package_name):
         dependencies = {}
@@ -70,7 +70,9 @@ class DepHandler:
         for operators in dependencies.values():
             for operator, deps in operators.items():
                 if operator != "any":
-                    deps.sort(key=lambda d: debian_support.Version(d.version) if d.version != "any" else debian_support.Version("0"))
+                    deps.sort(key=lambda d: debian_support.Version(
+                        d.version) if d.version != "any" else debian_support.Version("0"))
+
 
 class RepositoryFileHandler:
     @staticmethod

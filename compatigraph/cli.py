@@ -35,10 +35,13 @@ class CLI:
         args = self.parser.parse_args()
         if args.verbose:
             print("Verbose mode activated.")
+        name, version = "",""
 
         if "=" in args.input:
             name=args.input.split("=")[0]
             version=args.input.split("=")[1]
+        else:
+            name=args.input
         try:
             find_the_pkg(args.input)
         except UnknownPkgException as e:
