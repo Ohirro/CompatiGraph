@@ -8,6 +8,6 @@ Homepage: https://github.com/Ohirro/CompatiGraph
 
 Package: compatigraph
 Architecture: all
-Depends: python3 (>= 3.11.2-1+b1), python3-apt (>= 2.6.0), python3-debian (>= 0.1.49), python3-distutils (>= 3.11.2-3), python3-requests (>= 2.28.1+dfsg-1), python3-pygraphviz (>= 1.7-3+b4), python3-graphviz (>= 0.20.1-1), python3-tqdm (>= 4.64.1-1), python3-urllib3 (>= 1.26.12-1), graphviz (>= 2.42.2)
+Depends: python3 (>= 3.11.2-1+b1), python3-apt (>= 2.6.0), python3-debian (>= 0.1.49), python3-distutils (>= 3.11.2-3), python3-tqdm, python3-requests (>= 2.28.1+dfsg-1), python3-pygraphviz (>= 1.7-3+b4), python3-graphviz (>= 0.20.1-1), python3-tqdm (>= 4.64.1-1), python3-urllib3 (>= 1.26.12-1), graphviz (>= 2.42.2)
 Description: CompatiGraph package
  CompatiGraph is designed to facilitate the compatibility analysis between various software components by leveraging graph-based representations. It utilizes Python and several dependencies to analyze and visualize compatibility graphs, aiding developers in making informed decisions about software integration and dependency management.
