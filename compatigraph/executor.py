@@ -1,17 +1,18 @@
 from csv import writer as csv_writer
 from pathlib import Path
+from typing import Tuple
 
 from compatigraph.apt_worker import DepHandler
+from compatigraph.db_handler import DBHandler
 from compatigraph.logic import LogicSolver
 from compatigraph.packages_db import DebianPackageExtractor
-from compatigraph.db_handler import DBHandler
 from compatigraph.sources import SourceHandler
 
 
 class Executor:
     def __init__(
         self,
-        package: str | Path = None,
+        package: Tuple[str | Path, str] = None,
         verbose: bool = None,
         source: str | Path = None,
     ) -> None:
@@ -24,10 +25,19 @@ class Executor:
         self._dep_handler = None
         self._db_handler = None
         self._db_init = None
+        self.deps = None
+
+    @property
+    def deps(self):
+        if not self.deps:
+            dh = DepHandler()
+            #TODO get line dependencies from DB
+            line_from_db = ""
+            self.deps = dh.parse_dependencies_detailed(deps_line=line_from_db, package_name=self._package[0])
 
     @property
     def solver_meta(self):
-        if self._solver_meta is None:
+        if self._solver_meta:
             self._solver_meta = LogicSolver()
         return self._solver_meta
 
@@ -69,7 +79,8 @@ class Executor:
             A dictionary mapping each dependency to its analysis result, strictest conditions,
             and database check result.
         """
-        parsed_dependencies_detailed = self.dep_handel.parse_dependencies_detailed(self.deps)
+        # TODO 
+        parsed_dependencies_detailed = self.dep_handel.parse_dependencies_detailed()
         results = {}
 
         for key, value in parsed_dependencies_detailed.items():

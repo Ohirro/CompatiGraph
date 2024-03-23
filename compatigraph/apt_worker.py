@@ -1,10 +1,8 @@
 import subprocess
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from subprocess import Popen
+from tempfile import TemporaryDirectory
 from typing import Generator, Tuple
-import tqdm
-
 
 from debian import debian_support
 
@@ -45,53 +43,42 @@ class Dependency:
 class DepHandler:
     def __init__(self) -> None: ...
 
-    @staticmethod
-    def parse_dependencies_detailed(deps):
+
+    def parse_dependencies_detailed(self, deps_line, package_name):
         dependencies = {}
-        current_package = None
-        for line in deps.split("\n"):
-            line = line.strip()
-            if line and not line.startswith("Depends:"):
-                current_package = line
-            elif line.startswith("Depends:"):
-                dep_info = line.replace("Depends: ", "").split(" (", 1)
-                dep_name = dep_info[0].strip()
-                if len(dep_info) > 1:
-                    version_info = dep_info[1].rstrip(")").split(" ", 1)
-                    if len(version_info) == 2:
-                        operator, version = version_info
-                    else:
-                        operator, version = "=", version_info[0] if version_info else "any"
-                else:
-                    operator, version = "any", "0"  # Для зависимостей без указанной версии
-
-                if dep_name not in dependencies:
-                    dependencies[dep_name] = {"=": [], ">=": [], "<=": [], "any": [], "<<": [], ">>": []}
-                dependency = Dependency(operator, version, current_package)
-                dependencies[dep_name][operator].append(dependency)
-
-        # Сортировка не применяется к 'any', так как версия не указана
-        for dep_name, operators in dependencies.items():
-            for operator, deps_ in operators.items():
-                if operator != "any":
-                    deps_.sort(
-                        key=lambda d: debian_support.Version(d.version) if d.version else debian_support.Version("0")
-                    )
-
+        dep_name, dependency = self._parse_dependency_line(deps_line, package_name)
+        if dep_name not in dependencies:
+            dependencies[dep_name] = self._init_dependency_struct()
+        dependencies[dep_name][dependency.operator].append(dependency)
+        self._sort_dependencies(dependencies)
         return dependencies
 
-    def load_from_local_repo(self) -> Generator[Tuple[str, str]]:
-        # TODO to think about process_optimization
+    def _parse_dependency_line(self, line, current_package):
+        dep_info = line.replace("Depends: ", "").split(" (", 1)
+        dep_name = dep_info[0].strip()
+        if len(dep_info) > 1:
+            version_info = dep_info[1].rstrip(")").split(" ", 1)
+            operator, version = version_info if len(version_info) == 2 else ("=", version_info[0])
+        else:
+            operator, version = "any", "0"
+        return dep_name, Dependency(operator, version, current_package)
+
+    def _init_dependency_struct(self):
+        return {"=": [], ">=": [], "<=": [], "any": [], "<<": [], ">>": []}
+
+    def _sort_dependencies(self, dependencies):
+        for operators in dependencies.values():
+            for operator, deps in operators.items():
+                if operator != "any":
+                    deps.sort(key=lambda d: debian_support.Version(d.version) if d.version != "any" else debian_support.Version("0"))
+
+class RepositoryFileHandler:
+    @staticmethod
+    def extract_and_read_files(source_path="/var/lib/apt/lists"):
         with TemporaryDirectory() as tmp_dir:
-            for file in Path("/var/lib/apt/lists").rglob(".lz4"):
-                err_out = ""
-                with Popen(
-                    f"sudo lz4 -d {file} {tmp_dir}/{file}_extracted".split(),
-                    stdout=subprocess.DEVNULL,
-                    stderr=err_out,
-                ) as proc:
-                    if not proc.returncode:
-                        # TODO find correct exception
-                        raise ValueError(f"Unable to unpack file\n context is \n\n {err_out}\n\n")
-                    with open(f"{tmp_dir}/{file}_extracted", "r", encoding="utf-8") as file_io:
-                        yield (file, file_io.read())
+            for file in Path(source_path).rglob("*.lz4"):
+                extracted_file = Path(tmp_dir) / (file.stem + "_extracted")
+                subprocess.run(["lz4", "-d", str(file), str(extracted_file)],
+                               stdout=subprocess.DEVNULL, check=True)
+                with open(extracted_file, "r", encoding="utf-8") as file_io:
+                    yield file.name, file_io.read()

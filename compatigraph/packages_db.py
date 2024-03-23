@@ -1,15 +1,8 @@
-import gzip
-import lzma
-import re
-import sqlite3
-from pathlib import Path
-
+from compatigraph.apt_worker import DepHandler, RepositoryFileHandler
 from compatigraph.helper import GenericHelpers
-from compatigraph.apt_worker import DepHandler
-from compatigraph.db_handler import DBHandler
 
 
-class DebianPackageExtractor(GenericHelpers, DepHandler):
+class DebianPackageExtractor(GenericHelpers, RepositoryFileHandler):
     def __init__(
         self,
         debian_urls: list[str] = None,

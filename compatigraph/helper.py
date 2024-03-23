@@ -1,12 +1,13 @@
+import gzip
+import lzma
+import re
 import subprocess
 from contextlib import contextmanager
-from subprocess import Popen
-import requests
 from io import BytesIO
+from subprocess import Popen
+
+import requests
 import tqdm
-import gzip
-import re
-import lzma
 
 
 class UnknownPkgException(Exception): ...
