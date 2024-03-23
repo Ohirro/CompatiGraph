@@ -1,4 +1,3 @@
-import re
 import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -23,8 +22,8 @@ class DBHandler:
 
     def make_dbs(self, tables_names: list[str]):
         self._setup_database(tables_names)
-        if self._check_db_expiry() or self._check_url_change():
-            self._setup_database()
+        # if self._check_db_expiry() or self._check_url_change(tables_names):
+        #     self._setup_database(tables_names)
 
     def _setup_database(self, tables_names: list[str]):
         cursor = self.conn.cursor()
@@ -136,8 +135,7 @@ class DBHandler:
             for _, dep_list in deps.items():
                 for dep in dep_list:
                     err_str = None
-                    result = self.get_version(table_name, package)
-                    if not result:
+                    if not (result := self.get_version(table_name, package)):
                         err_str = f"not found {package} need {dep.operator} {dep.version}"
                     elif not dep.is_satisfied_by(result[0]):
                         err_str = f"{package} dependency unsatisfied: {result[0]}{dep.operator}{dep.version}"

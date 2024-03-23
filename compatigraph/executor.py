@@ -1,6 +1,5 @@
 from csv import writer as csv_writer
 from pathlib import Path
-from typing import Tuple
 
 from compatigraph.apt_worker import DepHandler
 from compatigraph.db_handler import DBHandler
@@ -12,7 +11,7 @@ from compatigraph.sources import SourceHandler
 class Executor:
     def __init__(
         self,
-        package: Tuple[str | Path, str] = None,
+        package: tuple[str | Path, str] = None,
         verbose: bool = None,
         source: str | Path = None,
     ) -> None:
@@ -61,9 +60,9 @@ class Executor:
     @property
     def packages(self):
         if self.packages is None:
-            self.packages = DebianPackageExtractor(debian_urls=self.sources_links)
-            self.packages = self.packages.convert_repos()
-        return self.packages
+            packages = DebianPackageExtractor(debian_urls=self.sources_links)
+            packages = self.packages.convert_repos()
+        return packages
 
     def prepare(self):
         self.db_handler.make_dbs(list(self.packages.keys()))

@@ -2,8 +2,6 @@ import subprocess
 from pathlib import Path
 from subprocess import Popen
 from tempfile import TemporaryDirectory
-from typing import Generator, Tuple
-
 from debian import debian_support
 
 
