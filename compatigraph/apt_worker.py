@@ -1,4 +1,10 @@
 import subprocess
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from subprocess import Popen
+from typing import Generator, Tuple
+import tqdm
+
 
 from debian import debian_support
 
@@ -34,27 +40,6 @@ class Dependency:
         if self.operator == "any":
             return other_version is not None
         raise ValueError(f"Неизвестный оператор: {self.operator}")
-
-
-class AptExecutor:
-    def __init__(self, reqursive: bool = True) -> None:
-        self.reqursive = reqursive
-
-    def get_dependencies(self, package_name):
-        """
-        Get all dependencies for a given package on Debian-based systems.
-        """
-        try:
-            if self.reqursive:
-                result = subprocess.run(
-                    ["apt-rdepends", package_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
-                )
-            # else:
-            # TODO to think about
-            # result = subprocess.run(['apt-depends', package_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-            return result.stdout.decode("utf-8")
-        except subprocess.CalledProcessError as e:
-            raise subprocess.CalledProcessError from e
 
 
 class DepHandler:
@@ -95,17 +80,18 @@ class DepHandler:
 
         return dependencies
 
-    def get_dependencies(self, package_name):
-        """
-        Get all dependencies for a given package on Debian-based systems.
-        """
-        try:
-            result = subprocess.run(
-                ["apt-rdepends", package_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
-            )
-            dependencies = result.stdout.decode("utf-8")
-
-            return self.parse_dependencies_detailed(dependencies)
-        except subprocess.CalledProcessError as e:
-            print(f"Error occurred: {e}")
-        return {}
+    def load_from_local_repo(self) -> Generator[Tuple[str, str]]:
+        # TODO to think about process_optimization
+        with TemporaryDirectory() as tmp_dir:
+            for file in Path("/var/lib/apt/lists").rglob(".lz4"):
+                err_out = ""
+                with Popen(
+                    f"sudo lz4 -d {file} {tmp_dir}/{file}_extracted".split(),
+                    stdout=subprocess.DEVNULL,
+                    stderr=err_out,
+                ) as proc:
+                    if not proc.returncode:
+                        # TODO find correct exception
+                        raise ValueError(f"Unable to unpack file\n context is \n\n {err_out}\n\n")
+                    with open(f"{tmp_dir}/{file}_extracted", "r", encoding="utf-8") as file_io:
+                        yield (file, file_io.read())

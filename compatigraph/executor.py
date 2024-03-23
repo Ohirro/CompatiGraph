@@ -1,9 +1,10 @@
 from csv import writer as csv_writer
 from pathlib import Path
 
-from compatigraph.apt_worker import AptExecutor, DepHandler
+from compatigraph.apt_worker import DepHandler
 from compatigraph.logic import LogicSolver
-from compatigraph.packages_db import DebianPackageImporter, DebianPackageInfo
+from compatigraph.packages_db import DebianPackageExtractor
+from compatigraph.db_handler import DBHandler
 from compatigraph.sources import SourceHandler
 
 
@@ -20,11 +21,9 @@ class Executor:
         if source is None:
             self.source = Path("/etc/apt")
         self._solver_meta = None
-        self._dep_handel = None
-        self._apt_executor = None
-        self._deps = None
+        self._dep_handler = None
+        self._db_handler = None
         self._db_init = None
-        self._db_info = None
 
     @property
     def solver_meta(self):
@@ -34,27 +33,15 @@ class Executor:
 
     @property
     def dep_handel(self):
-        if self._dep_handel is None:
-            self._dep_handel = DepHandler()
-        return self._dep_handel
+        if self._dep_handler is None:
+            self._dep_handler = DepHandler()
+        return self._dep_handler
 
     @property
-    def apt_executor(self):
-        if self._apt_executor is None:
-            self._apt_executor = AptExecutor()
-        return self._apt_executor
-
-    @property
-    def deps(self):
-        if self._deps is None:
-            self._deps = self.apt_executor.get_dependencies(self._package)
-        return self._deps
-
-    @property
-    def db_info(self):
-        if self._db_info is None:
-            self._db_info = DebianPackageInfo("debian_packages.db")
-        return self._db_info
+    def db_handler(self):
+        if self._db_handler is None:
+            self._db_handler = DBHandler(".packages_db.db")
+        return self._db_handler
 
     @property
     def sources_links(self):
@@ -62,11 +49,16 @@ class Executor:
         links = sh.system_links()
         return links
 
-    def db_init(self):
-        if self._db_init is None:
-            self._db_init = DebianPackageImporter("debian_packages.db", debian_urls=self.sources_links)
-            self._db_init.close()
-        return self._db_init
+    @property
+    def packages(self):
+        if self.packages is None:
+            self.packages = DebianPackageExtractor(debian_urls=self.sources_links)
+            self.packages = self.packages.convert_repos()
+        return self.packages
+
+    def prepare(self):
+        self.db_handler.make_dbs(list(self.packages.keys()))
+        self.db_handler.insert_packages(self.packages)
 
     def solve(self) -> dict[str, tuple[str, str]]:
         """
@@ -81,7 +73,6 @@ class Executor:
         results = {}
 
         for key, value in parsed_dependencies_detailed.items():
-            # analysis_result = self.solver_meta.analyze_dependencies(value)
             if not (conflict := self.solver_meta.analyze_dependencies(value)):
                 confines = self.solver_meta.find_strictest_conditions(value)
                 results[key] = {"status": "OK", "confines": confines}
@@ -90,8 +81,7 @@ class Executor:
 
         # Perform the database check as part of the solving process
         confines_map = {key: value["confines"] for key, value in results.items() if value["status"] == "OK"}
-        self.db_init()
-        db_check_results = self.db_info.check_dependencies_in_all_tables(confines_map)
+        db_check_results = self.db_handler.check_dependencies_in_all_tables(confines_map)
 
         # Update results with database check information
         for key in confines_map.keys():
