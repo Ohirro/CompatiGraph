@@ -69,5 +69,5 @@ class GenericHelpers:
             name_raw = re.sub(r"[^a-zA-Z0-9_]", "_", rm_protocol)
         for fragment in name_raw.split("_"):
             if "-" in fragment and len(fragment.split("-")) >= 2 and not "debian" in fragment:
-                return additional_str + fragment
-        return additional_str + name_raw.capitalize().replace(".", "").replace("deb", "")
+                return f"{additional_str}_{fragment.replace('-', '_')}"
+        return f"{additional_str}_{name_raw.capitalize().replace('.', '').replace('deb', '').replace('-', '_')}"

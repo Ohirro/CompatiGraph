@@ -90,3 +90,8 @@ class SourceHandler:
             for component in meta[1]:
                 links.append(self.make_packages_url(base_url, meta[0], component))
         return links
+
+
+if __name__ == "__main__":
+    sh = SourceHandler()
+    print(sh.system_links())

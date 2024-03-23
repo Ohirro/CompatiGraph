@@ -2,7 +2,7 @@ import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
 
-import tqdm
+from tqdm import tqdm
 
 
 class DBHandler:

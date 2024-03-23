@@ -62,7 +62,7 @@ class Executor:
         packages = DebianPackageExtractor(self.sources_links)
         packages = packages.convert_repos()
         self.db_handler.make_dbs(list(packages.keys()))
-        self.db_handler.insert_packages(self.packages)
+        self.db_handler.insert_packages(packages)
 
     def solve(self) -> dict[str, tuple[str, str]]:
         """
