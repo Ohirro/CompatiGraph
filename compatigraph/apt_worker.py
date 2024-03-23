@@ -81,4 +81,4 @@ class RepositoryFileHandler:
                 subprocess.run(["lz4", "-d", str(file), str(extracted_file)],
                                stdout=subprocess.DEVNULL, check=True)
                 with open(extracted_file, "r", encoding="utf-8") as file_io:
-                    yield file.name, file_io.read()
+                    yield file.name, file_io.readlines()

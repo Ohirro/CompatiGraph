@@ -57,15 +57,11 @@ class Executor:
         links = sh.system_links()
         return links
 
-    @property
-    def packages(self):
-        if self.packages is None:
-            packages = DebianPackageExtractor(debian_urls=self.sources_links)
-            packages = self.packages.convert_repos()
-        return packages
 
     def prepare(self):
-        self.db_handler.make_dbs(list(self.packages.keys()))
+        packages = DebianPackageExtractor(self.sources_links)
+        packages = packages.convert_repos()
+        self.db_handler.make_dbs(list(packages.keys()))
         self.db_handler.insert_packages(self.packages)
 
     def solve(self) -> dict[str, tuple[str, str]]:

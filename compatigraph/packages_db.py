@@ -2,13 +2,13 @@ from compatigraph.apt_worker import DepHandler, RepositoryFileHandler
 from compatigraph.helper import GenericHelpers
 
 
-class DebianPackageExtractor(GenericHelpers, RepositoryFileHandler):
+class DebianPackageExtractor:
     def __init__(
         self,
         debian_urls: list[str] = None,
     ) -> None:
+        print(debian_urls)
         self.debian_urls = debian_urls
-        super(DepHandler, self).__init__()
 
     @staticmethod
     def get_packages_from_list(file_handle: str) -> list[dict[str, str]]:
@@ -35,13 +35,13 @@ class DebianPackageExtractor(GenericHelpers, RepositoryFileHandler):
 
     def convert_repos(self) -> dict[str, list[dict[str, str]]]:
         converted_repos = {}
-        for repo in self.load_from_local_repo():
-            repo_name = self.beautify_name(repo[0], "local")
+        for repo in RepositoryFileHandler.extract_and_read_files():
+            repo_name = GenericHelpers.beautify_name(repo[0], "local")
             repo_data = self.get_packages_from_list(repo[1])
             converted_repos[repo_name] = repo_data
         for url in self.debian_urls:
             # TODO use asyncio
-            repo_name = self.beautify_name(url, "remote")
-            repo_data = self.get_packages_from_list(self.download_and_packages_file(url))
+            repo_name = GenericHelpers.beautify_name(url, "remote")
+            repo_data = self.get_packages_from_list(GenericHelpers.download_and_packages_file(url))
             converted_repos[repo_name] = repo_data
         return converted_repos

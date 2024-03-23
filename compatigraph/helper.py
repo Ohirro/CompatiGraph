@@ -7,7 +7,7 @@ from io import BytesIO
 from subprocess import Popen
 
 import requests
-import tqdm
+from tqdm import tqdm
 
 
 class UnknownPkgException(Exception): ...
@@ -31,7 +31,8 @@ def find_the_pkg(pkg):
 
 
 class GenericHelpers:
-    def _download_with_progress(self, url: str = None):
+    @staticmethod
+    def _download_with_progress(url: str = None):
         response = requests.get(url, stream=True, timeout=90)
         total_size_in_bytes = int(response.headers.get("content-length", 0))
         block_size = 1024
@@ -46,15 +47,16 @@ class GenericHelpers:
         content.seek(0)
         return content
 
-    def download_and_packages_file(self, url: str = None):
-        content = self._download_with_progress(url)
+    @classmethod
+    def download_and_packages_file(cls, url: str = None):
+        content = cls._download_with_progress(url)
         # TODO add other formats
         if url.endswith(".gz"):
             with gzip.open(content, "rt") as f:
-                return f.read()
+                return f.readlines()
         elif url.endswith(".xz"):
             with lzma.open(content, "rt") as f:
-                return f.read()
+                return f.readlines()
         else:
             raise ValueError("Unsupported file format")
 
