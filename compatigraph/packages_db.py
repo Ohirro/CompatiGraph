@@ -7,7 +7,6 @@ class DebianPackageExtractor:
         self,
         debian_urls: list[str] = None,
     ) -> None:
-        print(debian_urls)
         self.debian_urls = debian_urls
 
     @staticmethod
@@ -27,7 +26,10 @@ class DebianPackageExtractor:
                     packages.append(package)
                     package = {}
                 continue
-            key, value = line.split(":", 1)
+            try:
+                key, value = line.split(":", 1)
+            except:
+                breakpoint()
             package[key.strip()] = value.strip()
         if package:
             packages.append(package)
@@ -35,7 +37,7 @@ class DebianPackageExtractor:
 
     def convert_repos(self) -> dict[str, list[dict[str, str]]]:
         converted_repos = {}
-        for repo in RepositoryFileHandler.extract_and_read_files():
+        for repo in RepositoryFileHandler.use_if_not_lz4():
             repo_name = GenericHelpers.beautify_name(repo[0], "local")
             repo_data = self.get_packages_from_list(repo[1])
             converted_repos[repo_name] = repo_data

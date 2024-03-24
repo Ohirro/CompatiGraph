@@ -33,6 +33,7 @@ def find_the_pkg(pkg):
 class GenericHelpers:
     @staticmethod
     def _download_with_progress(url: str = None):
+        print(url)
         response = requests.get(url, stream=True, timeout=90)
         total_size_in_bytes = int(response.headers.get("content-length", 0))
         block_size = 1024
@@ -62,6 +63,7 @@ class GenericHelpers:
 
     @staticmethod
     def beautify_name(name_raw: str, additional_str: str) -> str:
+        print(name_raw)
         if additional_str not in ["remote", "local"]:
             raise ValueError(f"Impossible type location {additional_str}")
         if "http" in name_raw:

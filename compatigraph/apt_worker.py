@@ -82,3 +82,8 @@ class RepositoryFileHandler:
                                stdout=subprocess.DEVNULL, check=True)
                 with open(extracted_file, "r", encoding="utf-8") as file_io:
                     yield file.name, file_io.readlines()
+    @staticmethod
+    def use_if_not_lz4(source_path="/var/lib/apt/lists"):
+        for file in Path(source_path).rglob("*Packages"):
+            with open(file, "r", encoding="utf-8") as file_io:
+                yield file.name, file_io.readlines()

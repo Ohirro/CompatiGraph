@@ -79,16 +79,17 @@ class SourceHandler:
             f"{base_url}/dists/{release.replace(' ', '-')}/{component}/binary-{architecture}/Packages.xz"
         ):
             return f"{base_url}/dists/{release.replace(' ', '-')}/{component}/binary-{architecture}/Packages.xz"
-        return f"{base_url}/dists/{release.replace(' ', '-')}/{component}/binary-{architecture}/Packages.gz"
-
     def system_links(self) -> list[str]:
         res: dict[str, tuple[str, str]] = {}
         for sources in _find_all_sources(self.sources_location):
+            print(sources)
             res.update(self.parse_sources_list(sources))
         links: list[str] = []
         for base_url, meta in res.items():
             for component in meta[1]:
-                links.append(self.make_packages_url(base_url, meta[0], component))
+                if url := self.make_packages_url(base_url, meta[0], component):
+                    links.append(url)
+        print(links)
         return links
 
 
