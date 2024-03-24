@@ -55,7 +55,8 @@ class SourceHandler:
                             repositories[repository_url] = []
                             if "updates" in suites:
                                 continue
-                            repositories[repository_url].append((suite, components))
+                            for suite in suites.split():
+                                repositories[repository_url].append((suite, components))
         elif file_path.suffix == ".sources":
             with open(file_path, "r", encoding="utf8") as file:
                 repository_url = None

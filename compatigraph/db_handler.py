@@ -167,10 +167,24 @@ class DBHandler:
 
     def get_dependencies(self, table_name, package=None):
         if not package:
-            pass
+            return self._get_all_dependencies(table_name)
+        return self._get_dependencies_by_package(table_name, package)
 
-    def _get_dependencies_by_package(self, package, table_name):
-        pass
+    def _get_dependencies_by_package(self, table_name: str, package: str,) -> dict[str, str]:
+        cursor = self.conn.cursor()
+        query = f"SELECT package_name, dependencies FROM {table_name} WHERE package_name = ?"
+        cursor.execute(query, (package,))
+        result = cursor.fetchone()
 
-    def _get_all_dependencies(self, table_name):
-        pass
+        if result:
+            return {result[0]: result[1]}
+        else:
+            return {}
+
+    def _get_all_dependencies(self, table_name: str) -> dict[str, str]:
+        cursor = self.conn.cursor()
+        query = f"SELECT package_name, dependencies FROM {table_name}"
+        cursor.execute(query)
+        results = cursor.fetchall()
+
+        return {package: dependencies for package, dependencies in results}

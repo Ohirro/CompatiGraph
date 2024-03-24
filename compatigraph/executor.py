@@ -76,6 +76,7 @@ class Executor:
         # TODO
         dh = DepHandler()
         deps_line_from_db = ""
+        print(self.db_handler.get_dependencies("local", "bind9"))
         sparsed_dependencies_detailed= dh.parse_dependencies_detailed(deps_line=deps_line_from_db, package_name=self._package[0])
 
         parsed_dependencies_detailed = self.dep_handel.parse_dependencies_detailed()
