@@ -43,6 +43,7 @@ class DepHandler:
         ...
 
     def parse_dependencies_detailed(self, deps_line, package_name):
+        print(deps_line, package_name)
         dependencies = {}
         dep_name, dependency = self._parse_dependency_line(deps_line, package_name)
         if dep_name not in dependencies:

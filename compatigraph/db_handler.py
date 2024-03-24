@@ -37,6 +37,8 @@ class DBHandler:
         """
         )
         for table_name in tables_names:
+            if "remote" not in table_name:
+                table_name = "local"
             cursor.execute(
                 f"""
             CREATE TABLE IF NOT EXISTS {table_name} (
@@ -45,7 +47,8 @@ class DBHandler:
                 version TEXT NOT NULL,
                 architecture TEXT,
                 dependencies TEXT,
-                description TEXT
+                description TEXT,
+                repo_name TEXT
             )
             """
             )
@@ -89,15 +92,18 @@ class DBHandler:
                 "Architecture": pkg.get("Architecture", ""),
                 "Depends": pkg.get("Depends", ""),
                 "Description": pkg.get("Description", ""),
+                "RepoName": table_name,
             }
             prepared_packages.append(prepared_pkg)
 
+        if "remote" not in table_name:
+            table_name = "local"
         with self.conn:
             cursor = self.conn.cursor()
             cursor.executemany(
                 f"""
-            INSERT INTO {table_name} (package_name, version, architecture, dependencies, description)
-            VALUES (:Package, :Version, :Architecture, :Depends, :Description)
+            INSERT INTO {table_name} (package_name, version, architecture, dependencies, description, repo_name)
+            VALUES (:Package, :Version, :Architecture, :Depends, :Description, :RepoName)
             """,
                 prepared_packages,
             )
@@ -118,9 +124,9 @@ class DBHandler:
         return cursor.fetchone()
 
     def check_dependencies_in_table(
-        self,
-        table_name: str,
-        dependencies: dict[str, str],
+            self,
+            table_name: str,
+            dependencies: dict[str, str],
     ) -> dict[str, str]:
         """
         Проверяет зависимости в конкретной таблице.
@@ -158,3 +164,13 @@ class DBHandler:
             all_errors[table] = errors
 
         return all_errors
+
+    def get_dependencies(self, table_name, package=None):
+        if not package:
+            pass
+
+    def _get_dependencies_by_package(self, package, table_name):
+        pass
+
+    def _get_all_dependencies(self, table_name):
+        pass
