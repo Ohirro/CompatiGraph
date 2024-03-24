@@ -1,16 +1,17 @@
 from csv import writer as csv_writer
 from pathlib import Path
 
-from compatigraph.apt_worker import AptExecutor, DepHandler
+from compatigraph.apt_worker import DepHandler
+from compatigraph.db_handler import DBHandler
 from compatigraph.logic import LogicSolver
-from compatigraph.packages_db import DebianPackageImporter, DebianPackageInfo
+from compatigraph.packages_db import DebianPackageExtractor
 from compatigraph.sources import SourceHandler
 
 
 class Executor:
     def __init__(
         self,
-        package: str | Path = None,
+        package: tuple[str | Path, str] = None,
         verbose: bool = None,
         source: str | Path = None,
     ) -> None:
@@ -20,41 +21,35 @@ class Executor:
         if source is None:
             self.source = Path("/etc/apt")
         self._solver_meta = None
-        self._dep_handel = None
-        self._apt_executor = None
-        self._deps = None
+        self._dep_handler = None
+        self._db_handler = None
         self._db_init = None
-        self._db_info = None
+        self._deps = None
+
+    @property
+    def deps(self):
+        if not self.deps:
+            #TODO get line dependencies from DB
+            line_from_db = ""
+            self._deps = ""
 
     @property
     def solver_meta(self):
-        if self._solver_meta is None:
+        if self._solver_meta:
             self._solver_meta = LogicSolver()
         return self._solver_meta
 
     @property
     def dep_handel(self):
-        if self._dep_handel is None:
-            self._dep_handel = DepHandler()
-        return self._dep_handel
+        if self._dep_handler is None:
+            self._dep_handler = DepHandler()
+        return self._dep_handler
 
     @property
-    def apt_executor(self):
-        if self._apt_executor is None:
-            self._apt_executor = AptExecutor()
-        return self._apt_executor
-
-    @property
-    def deps(self):
-        if self._deps is None:
-            self._deps = self.apt_executor.get_dependencies(self._package)
-        return self._deps
-
-    @property
-    def db_info(self):
-        if self._db_info is None:
-            self._db_info = DebianPackageInfo("debian_packages.db")
-        return self._db_info
+    def db_handler(self):
+        if self._db_handler is None:
+            self._db_handler = DBHandler(".packages_db.db")
+        return self._db_handler
 
     @property
     def sources_links(self):
@@ -62,11 +57,12 @@ class Executor:
         links = sh.system_links()
         return links
 
-    def db_init(self):
-        if self._db_init is None:
-            self._db_init = DebianPackageImporter("debian_packages.db", debian_urls=self.sources_links)
-            self._db_init.close()
-        return self._db_init
+
+    def prepare(self):
+        packages = DebianPackageExtractor(self.sources_links)
+        packages = packages.convert_repos()
+        self.db_handler.make_dbs(list(packages.keys()))
+        self.db_handler.insert_packages(packages)
 
     def solve(self) -> dict[str, tuple[str, str]]:
         """
@@ -77,11 +73,16 @@ class Executor:
             A dictionary mapping each dependency to its analysis result, strictest conditions,
             and database check result.
         """
-        parsed_dependencies_detailed = self.dep_handel.parse_dependencies_detailed(self.deps)
+        # TODO
+        dh = DepHandler()
+        deps_line_from_db = ""
+        print(self.db_handler.get_dependencies("local", "bind9"))
+        sparsed_dependencies_detailed= dh.parse_dependencies_detailed(deps_line=deps_line_from_db, package_name=self._package[0])
+
+        parsed_dependencies_detailed = self.dep_handel.parse_dependencies_detailed()
         results = {}
 
         for key, value in parsed_dependencies_detailed.items():
-            # analysis_result = self.solver_meta.analyze_dependencies(value)
             if not (conflict := self.solver_meta.analyze_dependencies(value)):
                 confines = self.solver_meta.find_strictest_conditions(value)
                 results[key] = {"status": "OK", "confines": confines}
@@ -90,8 +91,7 @@ class Executor:
 
         # Perform the database check as part of the solving process
         confines_map = {key: value["confines"] for key, value in results.items() if value["status"] == "OK"}
-        self.db_init()
-        db_check_results = self.db_info.check_dependencies_in_all_tables(confines_map)
+        db_check_results = self.db_handler.check_dependencies_in_all_tables(confines_map)
 
         # Update results with database check information
         for key in confines_map.keys():
