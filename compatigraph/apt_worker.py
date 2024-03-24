@@ -1,6 +1,5 @@
 import subprocess
 from pathlib import Path
-from subprocess import Popen
 from tempfile import TemporaryDirectory
 from debian import debian_support
 
@@ -43,7 +42,6 @@ class DepHandler:
         ...
 
     def parse_dependencies_detailed(self, deps_line, package_name):
-        print(deps_line, package_name)
         dependencies = {}
         dep_name, dependency = self._parse_dependency_line(deps_line, package_name)
         if dep_name not in dependencies:
@@ -76,15 +74,15 @@ class DepHandler:
 class RepositoryFileHandler:
     @staticmethod
     def extract_and_read_files(source_path="/var/lib/apt/lists"):
-        with TemporaryDirectory() as tmp_dir:
-            for file in Path(source_path).rglob("*.lz4"):
-                extracted_file = Path(tmp_dir) / (file.stem + "_extracted")
-                subprocess.run(["lz4", "-d", str(file), str(extracted_file)],
-                               stdout=subprocess.DEVNULL, check=True)
-                with open(extracted_file, "r", encoding="utf-8") as file_io:
+        if lz4_files := list(Path(source_path).rglob("*.lz4")):
+            with TemporaryDirectory() as tmp_dir:
+                for file in lz4_files:
+                    extracted_file = Path(tmp_dir) / (file.stem + "_extracted")
+                    subprocess.run(["lz4", "-d", str(file), str(extracted_file)],
+                                stdout=subprocess.DEVNULL, check=True)
+                    with open(extracted_file, "r", encoding="utf-8") as file_io:
+                        yield file.name, file_io.readlines()
+        else:
+            for file in Path(source_path).rglob("*Packages"):
+                with open(file, "r", encoding="utf-8") as file_io:
                     yield file.name, file_io.readlines()
-    @staticmethod
-    def use_if_not_lz4(source_path="/var/lib/apt/lists"):
-        for file in Path(source_path).rglob("*Packages"):
-            with open(file, "r", encoding="utf-8") as file_io:
-                yield file.name, file_io.readlines()
