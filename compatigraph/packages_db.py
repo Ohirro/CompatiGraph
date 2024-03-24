@@ -26,10 +26,9 @@ class DebianPackageExtractor:
                     packages.append(package)
                     package = {}
                 continue
-            try:
-                key, value = line.split(":", 1)
-            except:
-                breakpoint()
+            if len(line.split(":")) == 1:
+                continue
+            key, value = line.split(":", 1)
             package[key.strip()] = value.strip()
         if package:
             packages.append(package)
