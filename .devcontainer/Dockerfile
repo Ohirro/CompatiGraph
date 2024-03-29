@@ -18,6 +18,7 @@ RUN apt-get update -qq && apt-get install -y \
     python3-venv \
     python3-tqdm \
     python3-requests \
+    black \
     apt-rdepends \
     python3-debian \
     && rm -rf /var/lib/apt/lists/*

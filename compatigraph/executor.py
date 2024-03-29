@@ -1,18 +1,21 @@
+import csv
 from csv import writer as csv_writer
 from pathlib import Path
+from typing import Tuple, Dict, Any
 
-from compatigraph.apt_worker import AptExecutor, DepHandler
+from compatigraph.apt_worker import DepHandler
+from compatigraph.db_handler import DBHandler
 from compatigraph.logic import LogicSolver
-from compatigraph.packages_db import DebianPackageImporter, DebianPackageInfo
+from compatigraph.packages_db import DebianPackageExtractor
 from compatigraph.sources import SourceHandler
 
 
 class Executor:
     def __init__(
-        self,
-        package: str | Path = None,
-        verbose: bool = None,
-        source: str | Path = None,
+            self,
+            package: tuple[str | Path, str] = None,
+            verbose: bool = None,
+            source: str | Path = None,
     ) -> None:
         self._package = package
         self._verbose = verbose
@@ -20,11 +23,17 @@ class Executor:
         if source is None:
             self.source = Path("/etc/apt")
         self._solver_meta = None
-        self._dep_handel = None
-        self._apt_executor = None
-        self._deps = None
+        self._dep_handler = None
+        self._db_handler = None
         self._db_init = None
-        self._db_info = None
+        self._deps = None
+
+    @property
+    def deps(self):
+        if not self.deps:
+            # TODO get line dependencies from DB
+            line_from_db = ""
+            self._deps = ""
 
     @property
     def solver_meta(self):
@@ -34,27 +43,15 @@ class Executor:
 
     @property
     def dep_handel(self):
-        if self._dep_handel is None:
-            self._dep_handel = DepHandler()
-        return self._dep_handel
+        if self._dep_handler is None:
+            self._dep_handler = DepHandler()
+        return self._dep_handler
 
     @property
-    def apt_executor(self):
-        if self._apt_executor is None:
-            self._apt_executor = AptExecutor()
-        return self._apt_executor
-
-    @property
-    def deps(self):
-        if self._deps is None:
-            self._deps = self.apt_executor.get_dependencies(self._package)
-        return self._deps
-
-    @property
-    def db_info(self):
-        if self._db_info is None:
-            self._db_info = DebianPackageInfo("debian_packages.db")
-        return self._db_info
+    def db_handler(self):
+        if self._db_handler is None:
+            self._db_handler = DBHandler(".packages_db.db")
+        return self._db_handler
 
     @property
     def sources_links(self):
@@ -62,13 +59,28 @@ class Executor:
         links = sh.system_links()
         return links
 
-    def db_init(self):
-        if self._db_init is None:
-            self._db_init = DebianPackageImporter("debian_packages.db", debian_urls=self.sources_links)
-            self._db_init.close()
-        return self._db_init
+    def prepare(self):
+        packages = DebianPackageExtractor(self.sources_links)
+        packages = packages.convert_repos()
+        self.db_handler.make_dbs(list(packages.keys()))
+        self.db_handler.insert_packages(packages)
 
-    def solve(self) -> dict[str, tuple[str, str]]:
+    def get_deps_by_table(self, package, table, dh: DepHandler):
+        res = {}
+        line = [self.db_handler.get_dependencies(table, package)]
+        added = set(package, )
+        while line:
+            a = line.pop()
+            checked = dh.parse_dependencies_detailed(a, package)
+            for pkg, dep in checked.items():
+                if pkg not in added:
+                    added.add(pkg)
+                    new_line = self.db_handler.get_dependencies(table, pkg)
+                    line.append(new_line)
+                res = dh.merge_dependencies_detailed(res, checked)
+        return res
+
+    def solve(self) -> tuple[dict, dict[Any, dict[str, str]]]:
         """
         Solves the dependencies, checks them against all tables in the database,
         and prepares the results.
@@ -77,92 +89,50 @@ class Executor:
             A dictionary mapping each dependency to its analysis result, strictest conditions,
             and database check result.
         """
-        parsed_dependencies_detailed = self.dep_handel.parse_dependencies_detailed(self.deps)
-        results = {}
+        # TODO
+        dh = DepHandler()
+        deps = {}
+        for tb in self.db_handler.fetch_table_names():
+            deps[tb] = self.get_deps_by_table(self._package[0], tb, dh)
+        results = {key: {} for key in list(deps.keys())}
 
-        for key, value in parsed_dependencies_detailed.items():
-            # analysis_result = self.solver_meta.analyze_dependencies(value)
-            if not (conflict := self.solver_meta.analyze_dependencies(value)):
-                confines = self.solver_meta.find_strictest_conditions(value)
-                results[key] = {"status": "OK", "confines": confines}
-            else:
-                results[key] = {"status": "FAIL", "reason": f"Fail {conflict}"}
+        for tb, val in deps.items():
+            for key, value in val.items():
+                if not (conflict := self.solver_meta.analyze_dependencies(value)):
+                    confines = self.solver_meta.find_strictest_conditions(value)
+                    results[tb][key] = {"status": "OK", "confines": confines}
+                else:
+                    results[tb][key] = {"status": "FAIL", "reason": f"Fail {conflict}"}
 
-        # Perform the database check as part of the solving process
-        confines_map = {key: value["confines"] for key, value in results.items() if value["status"] == "OK"}
-        self.db_init()
-        db_check_results = self.db_info.check_dependencies_in_all_tables(confines_map)
+        db_check_results = {}
+        for tb, val in deps.items():
+            db_check_results[tb] = self.db_handler.check_dependencies_in_table(tb, val)
 
-        # Update results with database check information
-        for key in confines_map.keys():
-            for db, db_data in db_check_results.items():
-                results[key][db] = db_data.get(key, "OK")
+        return results, db_check_results
 
-        return results
+    def save_results_to_csv(self, name: str, results: dict[str, dict], db_res: dict[str, dict]):
+        # Сохранение результатов анализа зависимостей
+        with open(f"{name}_analysis.csv", "w", newline='') as csvfile:
+            fieldnames = ['table', 'dependency', 'status', 'confines']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
 
-    def print_results(self, results: dict[str, tuple[str, str]]):
-        """
-        Prints the results of the dependency analysis, including the database checks, in a table format.
+            for table, dependencies in results.items():
+                for dep, analysis in dependencies.items():
+                    # Преобразование confines в строку для записи в CSV
+                    confines_str = ', '.join([f"{op}: {', '.join([str(dep) for dep in deps])}" for op, deps in analysis['confines'].items()])
+                    row = {'table': table, 'dependency': dep, 'status': analysis['status'], 'confines': confines_str}
+                    writer.writerow(row)
 
-        :results: dict[str, tuple[str, str]] The results dictionary from the solve function.
-        """
-        db_names = set()
-        for key, value in results.items():
-            for db in value.keys():
-                if db not in ("status", "confines"):
-                    db_names.add(db)
+        # Сохранение результатов проверки зависимостей в базе данных
+        with open(f"{name}_db_check.csv", "w", newline='') as csvfile:
+            fieldnames = ['table', 'dependency', 'result']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
 
-        db_names = sorted(list(db_names))  # Сортировка имен баз данных для последовательного отображения
-
-        # Определяем ширину колонки на основе самого длинного имени базы данных
-        max_db_name_length = max(len(db) for db in db_names) + 5  # Добавляем небольшой отступ
-
-        header = ["Dependency", "Status", "Confines"] + db_names
-        header_format = "{:<30} {:<10} {:<50} " + " ".join([f"{{:<{max_db_name_length}}}" for _ in db_names])
-        print(header_format.format(*header))
-
-        print("-" * (90 + max_db_name_length * len(db_names)))
-
-        for key, value in results.items():
-            status = str(value["status"])
-            confines = self.format_confines(value.get("confines"))
-
-            # Сбор данных проверки для каждой базы данных
-            db_checks = [str(value.get(db_name, "N/A")) for db_name in db_names]
-
-            row_format = "{:<30} {:<10} {:<50} " + " ".join([f"{{:<{max_db_name_length}}}" for _ in db_names])
-            print(row_format.format(key, status, confines, *db_checks))
-
-    @staticmethod
-    def format_confines(confines):
-        if not confines or not isinstance(confines, dict):
-            return "Any"
-
-        constraints = []
-        for operator, dependencies in confines.items():
-            for dep in dependencies:
-                constraints.append(f"{operator} {dep.version}")
-
-        return ", ".join(constraints) if constraints else "None"
-
-    def save_results_to_csv(self, results: dict[str, tuple[str, str]]):
-        db_names = set()
-        for key, value in results.items():
-            for db in value.keys():
-                if db not in ("status", "confines"):
-                    db_names.add(db)
-
-        db_names = sorted(list(db_names))
-
-        with open("dependency_analysis_results.csv", mode="w", newline="", encoding="utf8") as file:
-            writer = csv_writer(file)
-
-            headers = ["Dependency", "Status", "Confines"] + db_names
-            writer.writerow(headers)
-
-            for key, value in results.items():
-                status = str(value["status"])
-                confines = self.format_confines(value.get("confines"))
-                db_checks = [str(value.get(db_name, "N/A")) for db_name in db_names]
-                row = [key, status, confines] + db_checks
-                writer.writerow(row)
+            for table, dependencies in db_res.items():
+                for dep, result in dependencies.items():
+                    # Преобразование списка результатов в строку
+                    result_str = '; '.join(result)
+                    row = {'table': table, 'dependency': dep, 'result': result_str}
+                    writer.writerow(row)

@@ -35,12 +35,21 @@ class CLI:
         args = self.parser.parse_args()
         if args.verbose:
             print("Verbose mode activated.")
+        name, version = "",""
+
+        if "=" in args.input:
+            name=args.input.split("=")[0]
+            version=args.input.split("=")[1]
+        else:
+            name=args.input
         try:
             find_the_pkg(args.input)
         except UnknownPkgException as e:
             sys.stderr.write(f"Error: {e.__class__.__name__}: {e}\n")
             sys.exit(0)
-        runner = Executor(package=args.input, source=args.source)
-        results = runner.solve()
-        runner.print_results(results)
-        runner.save_results_to_csv(results)
+        runner = Executor(package=(name, version), source=args.source)
+        runner.prepare()
+        results, db_res = runner.solve()
+        print(results, db_res)
+        runner.save_results_to_csv("test", results, db_res)
+

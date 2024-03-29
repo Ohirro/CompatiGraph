@@ -13,7 +13,7 @@
         "ms-vscode.cmake-tools",
         "ms-python.python",
         "visualstudioexptteam.vscodeintellicode",
-        "github.vscode-pull-request-github"
+        "github.vscode-pull-request-github",
     ],
     "forwardPorts": [
         3000
