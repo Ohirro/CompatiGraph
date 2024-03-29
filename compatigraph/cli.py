@@ -49,6 +49,7 @@ class CLI:
             sys.exit(0)
         runner = Executor(package=(name, version), source=args.source)
         runner.prepare()
-        results = runner.solve()
-        runner.print_results(results)
-        runner.save_results_to_csv(results)
+        results, db_res = runner.solve()
+        print(results, db_res)
+        runner.save_results_to_csv("test", results, db_res)
+

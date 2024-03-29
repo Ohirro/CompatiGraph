@@ -41,17 +41,8 @@ class DepHandler:
     def __init__(self) -> None:
         ...
 
-    def parse_dependencies_detailed(self, deps_line, package_name):
-        dependencies = {}
-        dep_name, dependency = self._parse_dependency_line(deps_line, package_name)
-        if dep_name not in dependencies:
-            dependencies[dep_name] = self._init_dependency_struct()
-        dependencies[dep_name][dependency.operator].append(dependency)
-        self._sort_dependencies(dependencies)
-        return dependencies
-
-    def _parse_dependency_line(self, line, current_package):
-        dep_info = line.replace("Depends: ", "").split(" (", 1)
+    def _parse_single_dependency(self, dep, current_package):
+        dep_info = dep.split(" (", 1)
         dep_name = dep_info[0].strip()
         if len(dep_info) > 1:
             version_info = dep_info[1].rstrip(")").split(" ", 1)
@@ -59,6 +50,46 @@ class DepHandler:
         else:
             operator, version = "any", "0"
         return dep_name, Dependency(operator, version, current_package)
+
+    def _parse_dependency_line(self, line, current_package):
+        # Обрабатываем зависимости, разделяемые запятыми и альтернативные зависимости, разделяемые '|'
+        all_deps = []
+        for dep_group in line.split(', '):
+            # Для каждой группы зависимостей, разделённой запятой, мы можем иметь несколько альтернатив
+            alt_deps = dep_group.split(' | ')
+            group_deps = [self._parse_single_dependency(dep, current_package) for dep in alt_deps]
+            all_deps.append(group_deps)
+        return all_deps
+
+    def parse_dependencies_detailed(self, deps_line, package_name):
+        dependencies = {}
+        if deps_line:
+            # Обрабатываем каждую группу зависимостей
+            for dep_group in self._parse_dependency_line(deps_line, package_name):
+                for dep_name, dependency in dep_group:
+                    if dep_name not in dependencies:
+                        dependencies[dep_name] = self._init_dependency_struct()
+                    # Здесь каждая зависимость добавляется в соответствующий список
+                    dependencies[dep_name][dependency.operator].append(dependency)
+            self._sort_dependencies(dependencies)
+        return dependencies
+
+    def merge_dependencies_detailed(self, first, second) -> dict[str, dict[str, list]]:
+        # Объединяем зависимости из first и second
+        for pkg_name, operators in second.items():
+            if pkg_name not in first:
+                first[pkg_name] = self._init_dependency_struct()
+            for operator, dependencies in operators.items():
+                # Добавляем уникальные зависимости для каждого оператора
+                existing_versions = {dep.version for dep in first[pkg_name][operator]}
+                for dep in dependencies:
+                    if dep.version not in existing_versions:
+                        first[pkg_name][operator].append(dep)
+                        existing_versions.add(dep.version)
+
+        # Сортировка зависимостей после объединения
+        self._sort_dependencies(first)
+        return first
 
     def _init_dependency_struct(self):
         return {"=": [], ">=": [], "<=": [], "any": [], "<<": [], ">>": []}

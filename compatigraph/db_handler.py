@@ -109,14 +109,15 @@ class DBHandler:
             )
 
     # TODO call after dbload
-    def _fetch_table_names(self):
+    def fetch_table_names(self):
         cursor = self.conn.cursor()
         # TODO переделать, чтобы явно сличать структуру
         cursor.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name != db_metadata",
+            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name != 'db_metadata'",
         )
         rows = cursor.fetchall()
         self.tables = [row[0] for row in rows]
+        return self.tables
 
     def get_version(self, table_name: str, package: str) -> str:
         cursor = self.conn.cursor()
@@ -142,7 +143,7 @@ class DBHandler:
                 for dep in dep_list:
                     err_str = None
                     if not (result := self.get_version(table_name, package)):
-                        err_str = f"not found {package} need {dep.operator} {dep.version}"
+                        err_str = f"not found {package} need {dep} "
                     elif not dep.is_satisfied_by(result[0]):
                         err_str = f"{package} dependency unsatisfied: {result[0]}{dep.operator}{dep.version}"
                     if err_str:
@@ -170,16 +171,16 @@ class DBHandler:
             return self._get_all_dependencies(table_name)
         return self._get_dependencies_by_package(table_name, package)
 
-    def _get_dependencies_by_package(self, table_name: str, package: str,) -> dict[str, str]:
+    def _get_dependencies_by_package(self, table_name: str, package: str,) -> str:
         cursor = self.conn.cursor()
         query = f"SELECT package_name, dependencies FROM {table_name} WHERE package_name = ?"
         cursor.execute(query, (package,))
         result = cursor.fetchone()
 
         if result:
-            return {result[0]: result[1]}
+            return result[1]
         else:
-            return {}
+            return ""
 
     def _get_all_dependencies(self, table_name: str) -> dict[str, str]:
         cursor = self.conn.cursor()
